@@ -1,0 +1,12 @@
+name: Test_SOTS
+title: Test_SOTS
+username:
+account: vviet
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 388810
+bundleId: 1509977
+url: https://vviet.shinyapps.io/Test_SOTS/
+when: 1533053819.04206
+asMultiple: FALSE
+asStatic: FALSE
