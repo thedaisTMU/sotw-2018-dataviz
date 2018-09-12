@@ -1,19 +1,11 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
-#library(BFTheme)
 library(stringr)
 library(data.table)
 library(ggplot2)
-#library(extrafont)
 library(plotly)
+library(scales)
+
 
 
 load("data/cma.tech.concentration.rds")
@@ -26,202 +18,35 @@ load("data/cma_list.RDS")
 load("data/tech_gender.RDS")
 load("data/cma_data.RDS")
 load("data/province_data.RDS")
+load("data/cma_ca_education.RDS")
+load("data/tech_vismin.RDS")
 
 #Set up theme elements
-BF.Base.Theme <- ggplot2::theme(panel.background = ggplot2::element_rect(fill="transparent", colour=NA), #Make sure plot area background is transparent
-                                plot.background = ggplot2::element_rect(fill="transparent", colour=NA), #Make sure render area background is transparent
-                                axis.line = ggplot2::element_line(size=0.25, colour = "#B1B8BC"), #Set axis line width and set colour to grey
-                                axis.ticks = ggplot2::element_line(size=0.25, colour = "#B1B8BC"), #Set axis tick width and set colour to grey
-                                panel.grid.major = ggplot2::element_blank(), #Remove the panel grid lines
-                                panel.grid.minor = ggplot2::element_blank(), #Remove the panel grid lines
-                                text = ggplot2::element_text(color="white"), #Set the font for every text element (except for geom elements)
-                                plot.title = ggplot2::element_text(size=9,color="white"), #Format figure number
-                                plot.subtitle = ggplot2::element_text(size=12,color="white"), #Format main title
-                                plot.caption = ggplot2::element_text(face="italic", size=8.2, margin=ggplot2::margin(t=10),hjust=0,colour="#B1B8BC"), #Format for caption and other notes
-                                legend.background = ggplot2::element_rect(fill="transparent",colour=NA), #Make sure legend box is transparent (for export)
-                                legend.key = ggplot2::element_blank(), #Background on each key is transparent
-                                legend.box.margin = ggplot2::margin(b=4,t=6), #Set margin for the box for appropriate distance
-                                legend.title = ggplot2::element_text(size=10,hjust=0.5,color="white"), #Legend title text settings, also make centre it. Light so it's not as prominent
-                                legend.title.align = 0.5,
-                                legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color="white"), #Legend text settings. Light so it's not as prominent
-                                legend.margin = ggplot2::margin(b=1), #Small margin in the bottom
-                                legend.position = "top", #Set the legend to top so panel can be full width (for export)
-                                legend.box.spacing = ggplot2::unit(c(0,0,0,0),units=c("cm","cm","cm","cm")), #Legend box spacing - maybe not needed?
-                                axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white"), #Set axis text. Light to make it less prominent - margin is also precise
-                                axis.text.y = ggplot2::element_text(size=9, margin=ggplot2::margin(r=2),color="white"), #Set axis text. Light to make it less prominent - margin is also precise
-                                axis.title.x = ggplot2::element_text(size=10, margin=ggplot2::margin(t=4),color="white"), #Set axis title. Margin is also precise
-                                axis.title.y = ggplot2::element_text(size=10, margin=ggplot2::margin(r=4),color="white"))
-
-set.colours <- function(n,
-                        type = "categorical",
-                        gradient.choice = "dark.blue",
-                        categorical.choice = NULL,
-                        special = NULL){
-  #Setting all the base vectors to refer to - precise because I don't trust R's generation of gradients
-  base.set <- c("dark.blue"="#14365D","light.blue"="#8AD4DF","pink"="#DD347A","yellow"="#FFC800",
-                "magenta"="#79133E","orange"="#F7941E","green"="#82C458","teal"="#005F61","grey"="#707D85")
-  dark.blue <- c("#14365D","#29486B","#3E5A7A","#546C89","#697F97","#7E91A6","#94A3B5","#A9B5C4")
-  light.blue <- c("#8AD4DF","#94D7E1","#9FDBE4","#A9DFE7","#B4E3EA","#BFE7ED","#C9EBF0","#D4EFF3")
-  pink <- c("#DD347A","#E04686","#E35892","#E66B9E","#E97DAA","#EC90B6","#EFA2C2","#F2B5CE")
-  yellow <- c("#FFC800","#FFCD17","#FFD22E","#FFD745","#FFDC5C","#FFE173","#FFE68B","#FFEBA2")
-  magenta <- c("#79133E","#85284F","#913D61","#9D5372","#A96884","#B57E95","#C293A7","#CEA9B8")
-  orange <- c("#F7941E","#F79D32","#F8A746","#F9B15B","#F9BA6F","#FAC484","#FBCE98","#FCD8AD")
-  green <- c("#82C458","#8DC967","#98CE76","#A4D485","#AFD994","#BADEA3","#C6E4B3","#D1E9C2")
-  teal <- c("#005F61","#176D6F","#2E7C7D","#458A8C","#5C999A","#73A7A8","#8BB6B7","#A2C4C5")
-  grey <- c("#707D85","#7D8890","#8A949B","#97A0A6","#A4ACB1","#B1B8BC","#B1B8BC","#B1B8BC")
-  #Check if you have way too many categories - 7 is the absolute max!
-  if(n > 7){
-    stop("You have way too many categories. Reduce it!")
-  }
-  #Check if the type is categorical
-  if(type == "categorical"){
-    if(is.null(categorical.choice)){ #Check if a specific colour set was requested
-      return(unname(base.set[1:n])) #If not then return sequential from dark blue,light blue to pink
-    }
-    else{
-      if(length(categorical.choice)!=n){ #Check if the length of choice matches requested number of colours
-        stop("You didn't have the same number of colours as you specified. Change n or categorical.choice") #This is for sanity check, not because of code
-      }
-      return(unname(base.set[categorical.choice])) #Return the corresponding set of colours
-    }
-  }
-  if(type == "gradient"){ #On the otherhand, if it's a gradient
-    #Set up all the gradient choices
-    gra2 <- c(1, 5)
-    gra3 <- c(1, 4, 7)
-    gra4 <- c(1, 3, 5, 7)
-    gra5 <- c(1, 2, 4, 6, 7)
-    gra6 <- c(1, 2, 3, 4, 6, 7)
-    gra7 <- c(1, 2, 3, 4, 5, 6, 7)
-    return(get(gradient.choice)[get(str_c("gra",n))]) #Get the right number of gradients.
-  }
-}
-
-plot.waffle.bf <- function(named.vector,
-                           row.num=5,
-                           colours = NULL,
-                           plot.title="",
-                           plot.fig.num="",
-                           plot.cat.title="",
-                           caption = "",
-                           x.axis="",
-                           dividing.line=FALSE,
-                           labels=FALSE,
-                           label.unit = "",
-                           export = FALSE,
-                           export.name = "Rplot") {
-  
-  #Set up the main theme element
-  waffle.theme <- BF.Base.Theme +
-    theme(panel.spacing = ggplot2::unit(c(0,0,0,0),units=c("cm","cm","cm","cm")),
-          axis.text = ggplot2::element_blank(),
-          axis.text.x = ggplot2::element_blank(),
-          axis.text.y = ggplot2::element_blank(),
-          axis.title.x = ggplot2::element_blank(),
-          axis.title.y = ggplot2::element_blank(),
-          axis.ticks = ggplot2::element_blank(),
-          axis.line = ggplot2::element_blank())
-  #Calculate the coordinates for the waffle chart
-  num.square <- sum(named.vector) #Get the number of squares needed
-  most.x <- floor(num.square/row.num) #Find the maximum x value that fits in a square
-  left.x.max <- num.square-most.x*row.num #Find out how many squares don't fit
-  label.vector <- rep(names(named.vector),named.vector) #Create a vector of labels enumerated by labels
-  x.vector <- c(rep(seq(1,most.x),rep(row.num,most.x))) #Get the divisible part of the x coordinates
-  y.vector <- c(rep(seq(1,row.num),most.x)) #Get the divisible part of the y coordinates
-  id <- seq(1,num.square) #Get id for reference later on if needed
-  if(left.x.max!=0){ #If there are non divisible part
-    x.vector <- c(x.vector,rep(most.x+1,left.x.max)) #Add the x coordinate for the last few squares
-    y.vector <- c(y.vector,seq(1,left.x.max)) #Add the y coordinate for the last few squares
-  }
-  main.data <- data.table::data.table(id=id,label=label.vector,xc=x.vector,yc=y.vector) #Get the squares into a data table
-  main.data <- as.data.table(main.data)
-  if(is.null(colours)){
-    colours <- set.colours(length(named.vector)) #Get the colour vector for fill
-  }
-  #Set up base plot
-  p <- ggplot2::ggplot(main.data,aes(xc,yc,fill=label)) +
-    waffle.theme +
-    ggplot2::geom_tile(width=0.75,height=0.75) +
-    ggplot2::scale_fill_manual(values=colours,labels = str_c(sort(names(named.vector)),"    ")) +
-    ggplot2::coord_fixed(ratio=1)
-  #Dealing with dividing line problems - inefficient and can be improved (Future)
-  if(dividing.line){
-    length.vec <- length(named.vector) - 1 #Only need divicing lines for everything but the last category
-    for(n in names(named.vector[1:length.vec])){
-      max.x <- max(main.data[label==n,xc])
-      max.y <- max(main.data[label==n & xc==max.x,yc])
-      min.y <- min(main.data[label==n & xc==max.x,yc])
-      p <- p + ggplot2::annotate("segment",x=max.x+0.5,y=min.y-0.5,xend=max.x+0.5,yend=max.y+0.5,linetype=2,colour="#727D84") #Draw all the right lines to border cells
-      if(max.y < row.num){ #Check if the top border cell is the top row.
-        p <- p + ggplot2::annotate("segment",x=max.x-0.5,y=max.y+0.5,xend=max.x+0.5,yend=max.y+0.5,linetype=2,colour="#727D84") #Draw a border to the top cell
-        p <- p + ggplot2::annotate("segment",x=max.x-1+0.5,y=max.y+1-0.5,xend=max.x-1+0.5,yend=row.num+0.5,linetype=2,colour="#727D84") #Draw the right border for rest of the cells
-      }
-    }
-  }
-  #Dealing with label stuff
-  if(labels){
-    prev.x <- 0 #This is to see if labels will be too close to each other - approximate
-    prev.y <- -1 #This is to adjust the y height if labels are too close to each other - approximate
-    for(n in names(named.vector)){
-      random <- sample(0:1,1) #Sometimes put label on the bottom, sometimes on top
-      if(random==1){
-        max.y <- min(main.data[label==n,yc])
-      }
-      else{
-        max.y <- max(main.data[label==n,yc])
-      }
-      max.x <- max(main.data[label==n & yc==max.y,xc]) #This jointly with max.y determines which cell the arrow will come from
-      label <- stringr::str_c(named.vector[n],label.unit," ",n) #Generate label texts
-      if(max.y<row.num/2){
-        y.dest <- 0
-      }
-      else{
-        y.dest <- row.num+1
-      }
-      if(max.x-prev.x<=2 & prev.y==y.dest){ #Check to see if labels are too close to each other
-        if(y.dest==0){
-          y.dest <- y.dest-0.75
-        }
-        else{
-          y.dest <- y.dest+0.75
-        }
-      }
-      size.text <- nchar(label)/3.7 #Approximate text size so it won't collide with the segments
-      p <- p +
-        ggplot2::annotate("segment",x = max.x, y = max.y, xend = max.x - 1, yend = y.dest, colour="#727D84", size=0.25) + #Add the diagonal segment
-        ggplot2::annotate("segment",x=max.x-1,y=y.dest,xend=max.x-2,yend=y.dest,colour="#727D84",size=0.25) + #Add the horizontal segment
-        ggplot2::annotate("text",x=max.x-1-size.text,y=y.dest,label=label,size=11*0.352777778,family="RooneySans-Regular") #Add the text
-      prev.x <- max.x
-      prev.y <- y.dest
-    }
-  }
-  #Add labels
-  p <- p +
-    ggplot2::scale_x_continuous(expand=c(0,0),limits=c(0.5,most.x+0.5)) +
-    ggplot2::scale_y_continuous(limits=c(-1,row.num+1)) +
-    labs(title=plot.fig.num,subtitle=plot.title,x=x.axis,caption=caption) +
-    guides(fill=guide_legend(title=plot.cat.title,title.position = "top"))
-  #Export things
-  if(export){
-    ratio = round(row.num/most.x,2)
-    f.height = 12*ratio
-    export.bf.plot(export.name,p,p.height=f.height,p.width=12)
-  }
-  return(p)
-}
+source("definitions.R")
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- fluidPage(theme="style.css",
    
    # Application title
-   titlePanel("State of Canada's Tech Workers"),
-   tags$style("body{background:linear-gradient(to bottom right,#8AD4DF,#14365D);
-              color:#fff}"),
+   titlePanel(div(style="padding-right: 10%; padding-left: 10%",img(src="biie-logo-web-500width.png",width="250px"),"State of Canada's Tech Sector"),
+              windowTitle = "Brookfield Institute - State of Canada's Tech Workers 2018"),
+   tags$style("body{background:#CEE6C1;
+              color:#14365D}"),
    # Sidebar with a slider input for number of bins 
    navbarPage("Navigation",
-              tabPanel("Part 1: General Trends",
+              tabPanel("General Trends (Cities and Towns)",
                          # Show a plot of the generated distribution
+                         fluidRow(align = "center",
+                                  style = "padding-right: 10%; padding-left: 10%; background: #8AD4DF; color:#14365D; font-size: 18px; padding-top: 20px",
+                                  h2("Canada's Tech Workers"),
+                                  div(style="padding-top: 30px; padding-bottom: 30px",
+                                      p("Who are the people making up the Tech sector in Canada? How many are there? Where do they work? 
+                                        Is there a diversity problem in tech? These are some of the questions you may have asked while 
+                                        trying to understand the Tech sector in Canada. This data visualization, accompanying our 
+                                        2018 State of Tech Workers report, will help you dive deeper into these issues for cities around Canada."))
+                                 ), #End FluidRow
                          fluidRow(align="center",
+                                  style = "background: #8AD4DF; color:#14365D !important; font-size: 18px",
                                   selectInput("province",
                                               "Select a Province:",
                                               choices = c("British Columbia"="BC","Alberta"="AB","Saskachewan"="SK","Manitoba"="MB",
@@ -231,118 +56,262 @@ ui <- fluidPage(
                                   div(style="display: inline-block;vertical-align:middle; height:34px",
                                       p("Tell me more about tech jobs in ")),
                                   div(style="display: inline-block;vertical-align:middle; horizontal-align:left; height: 34px",
-                                      uiOutput("CMA_choice")),
-                                  plotlyOutput("cmatot", height="600px")
+                                      uiOutput("CMA_choice"))
                                 ), #EndFluidRow
-
-                       fluidRow(style = "margin-right: 50px ; margin-left: 50px",
-                                align="center",
-                                tags$style(".selectize-input{border-style: none;
-                                                border-bottom-style: solid;
-                                                border-radius: 0px ;
-                                                padding: 0px 0px 0px 0px;
-                                                box-shadow: none;
-                                                background: transparent;
-                                                background-color: transparent;
-                                                color: white}
-                                            .selectize-input.dropdown-active{
-                                                box-shadow: none;
-                                                border-radius: 0px;
-                                                background: transparent;
-                                                background-color: transparent;
-                                                color: white}
-                                            .selectize-input.focus{
-                                                box-shadow: none;
-                                                border-radius: 0px;
-                                                border-color: #8AD4DF;
-                                                background-color: transparent;
-                                                background: transparent;
-                                                color: white}
-                                           .selectize-input.full{
-                                                background-color:transparent;
-                                                background:transparent;
-                                                color: white}
-                                           .select-input.input-active{
-                                                background-color:transparent;
-                                                background: transparent;
-                                                color:white
-                                    }") #End tagstyle
-                                ), #End FluidRow
                        
-                       fluidRow(style="font-size: 25px; margin-right: 50px ; margin-left: 50px",
-                                align = "center",
-                                p("Technology sector in Canada is diverse - collectively, almost",
-                                span(style='color: #F7941E',"1 million"),
-                                "workers work in a technology occupation in Canada, forming 5% of the Canadian workforce.
-                                This web-app accompanies our main report: State of Canadian Tech Workforce.")
+                       fluidRow(align = "center",
+                                style = "background: #8AD4DF; color: #14365D; padding-left: 10%; padding-right: 10%; padding-bottom: 15px",
+                                plotlyOutput("cmatot",height="600px")
                                 ), #EndFluidRow
+                       
+                       fluidRow(style="padding-right: 10%; padding-left: 10%; padding-top: 40px; background: #8AD4DF; color:#14365D; display:flex; align-items:center",
+                                column(style="font-size: 20px; padding-right: 15px",
+                                       align="center",
+                                       width=7, 
+                                       p("The technology sector in Canada is diverse - almost ",
+                                          span(style='color: #DD347A',"1 million"),
+                                          "Canadians are in a tech occupation - that's 1 in 20 workers in Canada overall.
+                                         They work in many industries across cities and towns in Canada.") #End p
+                                       ), #End Column
+                                
+                                column(width=4,
+                                       style = "background: #DD347A; color: #fff; margin-bottom: 20px; padding-top: 10px; padding-bottom: 10px",
+                                       div(h4("Tech Occupation Definition"),
+                                           p("For this report, we define Tech occupations to be occupations with high requirement in Tech Skills. 
+                                              We use the National Occupational Classification to define our occupations, and US's O*Net's Skills taxonomy to look at each occupation's tech intensity."
+                                             ) #End p
+                                           ) #End Div
+                                       ) #End Column
+
+                                ), #EndFluidRow
+                       
                        
                        fluidRow(align="center",
-                                style="font-size: 18px; margin: 50px",
+                                style="font-size: 28px; padding-right: 10%; padding-left: 10%; padding-top: 50px; padding-bottom: 50px; color: #14365D; background: #CEE6C1",
                                 textOutput("CMA_chosen_2")
                                 ), #EndFluidRow
                        
-                       fluidRow(style = "margin-right: 50px; margin-left: 50px",
+            #START SHOWING TOPLINE NUMBERS FROM HERE
+                       fluidRow(style = "font-side: 18px; background: #14365D; color: #fff;",
+                                h3("Tech Employment by Occupations")
+                                ), #End FluidRow
+                       
+                       fluidRow(style = "padding-right: 10%; padding-left: 10%; background: #14365D; color: #fff",
                                 column(width=2,
-                                       radioButtons("pct_or_tot",choices = c("Absolute","Relative"),selected = "Absolute",label="Show me in")), #End Column
-                                column(style="border-right: 2px dashed #14365D",
+                                       style="font-size:18px",
+                                       radioButtons("pct_or_tot",choices = c("Total Tech Workers","Concentration of Tech Workers"),selected = "Total Tech Workers",label="Show me")), #End Column
+                                column(style="border-right: 2px dashed #8AD4DF; padding-bottom: 20px",
                                        align = "center",
-                                       plotlyOutput("cmatopocc",height="800px"),
+                                       p(style ="font-size: 18px", "Local Tech Talent"),
+                                       plotlyOutput("cmatopocc",height="500px"),
                                        width=5), #End Column
                                 
                                 column(align="center",
-                                       plotlyOutput("canadatopocc",height="800px"),
+                                       style = "padding-bottom: 20px",
+                                       p(style ="font-size: 18px", "Canada's Tech Talent"),
+                                       plotlyOutput("canadatopocc",height="500px"),
                                        width=5) #End Column
                                 ), #EndFluidRow
                        
-                       fluidRow(style="margin-right: 50px; margin-left: 50px; font-size: 18px",
-                                htmlOutput("cmatotnumtext")
+                       fluidRow(style="padding-top: 30px; padding-bottom: 30px; padding-right: 10%; padding-left: 10%; font-size: 18px; background: #14365D; color: #fff; display:flex; align-items:center",
+                                column(width=9,htmlOutput("cmatotnumtext"),
+                                       div(style="margin-bottom: 10px","How has this tech workforce changed since 2006?"),
+                                       htmlOutput("cmain2006")),
+                                column(width=3,img(src="test_image_1.png",style="width:100%; min-width:160px"))
                                 ), #EndFluidRow
-                       
-                       fluidRow(style = "margin-right: 50px; margin-left: 50px; font-size: 18px",
-                                align = "center",
-                                "You might be wondering, how has tech talent changed over the past 10 years?"
+            
+        #START SHOWING EDUCATION STUFF FROM HERE
+                       fluidRow(style = "font-size: 18px; background: #8AD4DF; color: #14365D;",
+                                h3("Education Attainment of Tech Workers by City/Town")
                                 ), #End FluidRow
                        
-                       fluidRow(style = "margin-right: 50px; margin-left: 50px; font-size: 18px; margin-top: 30px",
-                                column(width=10,
-                                       htmlOutput("cmain2006"))
-                                ) #End FluidRow
+                       #fluidRow(style = "padding-right: 50px; padding-left: 50px; font-size: 18px; padding-top: 30px; background: #14365D; color: #fff",
+                      #          htmlOutput("cmain2006")
+                      #          ), #End FluidRow
+                       
+                       fluidRow(style = "background: #8AD4DF; color:#14365D; padding-right: 10%; padding-left: 10%",
+                                align = "center",
+                                column(width=12,
+                                       style = "max-width: 800px; float:none",
+                                       align = "center",
+                                       plotlyOutput("educ.column",height="800px")
+                                       )#, #End Column
+                                
+                                ), #EndFluidRow
+                      
+                      fluidRow(style = "padding-top: 30px; padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #8AD4DF; color: #14365D; font-size: 18px; display:flex; align-items:center",
+                               column(width=3,
+                                      img(src="tech_image_2.png",style="width:100%; min-width:160px")),
+                               column(width=8,
+                                      htmlOutput("educ.text"),
+                                      p("In the main report, we also explored what programs students specialized in.
+                                        Though we don't present this data at the city/town level, tech workers came from a variety of backgrounds,
+                                        with a disproportionate share coming from traditional STEM programs. There was also a sizeable number who studied
+                                        Business degrees who are now a part of tech workers."))
+                               ), #End FluidRow
+                      
+        #START SHOWING COMPARISON FROM HERE
+                      fluidRow(style = "background: #CEE6C1, color: #14365D; font-size: 18px",
+                               h3("Compare between cities/towns")
+                      ), #EndFluidRow
+                      
+                      
+                      fluidRow(style = "padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                               p("Now that you've gotten a better idea of the topline numbers, you may want to compare between
+                                 different cities and/or towns. Use our tools to compare the topline numbers for up to 5 cities/towns, 
+                                 or download the entire dataset.")
+                      ), #EndFluidRow
+                
+                      fluidRow(style = "padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                               align = "center",
+                               selectizeInput(inputId = "comparison.cma",
+                                              label = "Select up to 5 cities or towns",
+                                              choices = sort(unique(cma.data[,Name])),
+                                              selected = NULL,
+                                              multiple = TRUE,
+                                              options = list(maxItems = 5))
+                               ), #EndFluidRow
+                      
+
+                      fluidRow(style = "padding-top: 30px; padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                               align = "center",
+                               tableOutput("comparison.topline")
+                               ), #EndFluidRow
+        
+                      fluidRow(style = "padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                               align = "center",
+                               downloadButton("download.topline.specific","Download Current Table")
+                               )#, #EndFluidRow
+
 
                        ),#End first tab panel
-              
-              tabPanel("Part 2: Income and Diversity",
+  #SECOND TAB PANEL
+              tabPanel("Income and Diversity (Metropolitan Areas)",
                        fluidRow(align = "center",
-                                p(style="font-size: 18px","Now, we take a deeper look into the pay and diversity of tech workers in the biggest cities in the country")
+                                style = "padding-left: 10%; padding-right: 10%; padding-top: 20px; background: #8AD4DF; color: #14365D, font-size: 18px",
+                                p(style="font-size: 18px",
+                                  "Diversity has been a focal point of many conversation surrounding tech. Let's explore how different groups of people
+                                  may have difference experiences working in tech for some of Canada's largest cities.")
                                 ), #End FluidRow
                        
                        fluidRow(align = "center",
+                                style = "padding-left: 10%; padding-right: 10%; background: #8AD4DF; color: #14365D",
                                 selectInput("cma_div","Select a Metropolitan Area:",
                                             choices = cma_list[,GEO.NAME])
                                 ), #EndFluidRow
                        
-                       fluidRow(align = "center",
-                                plotlyOutput("tech.pre.scatter")
+                       fluidRow(style = "padding-left: 10%; padding-right: 10%; padding-bottom: 20px; background: #8AD4DF; color: #14365D; font-size: 18px; display:flex; align-items:center",
+                                column(width = 7,
+                                       plotlyOutput("tech.pre.scatter",height = "500px")),
+                                column(width = 5,
+                                       p("Consistently, tech workers across Canada received higher average pay than non-tech workers.
+                                         This pay increase was present in every demographic and geographic groups."),
+                                       htmlOutput("tech.premium.text"))
+                                
+                                ), #EndFluidRow
+      #GENDER DIVERSITY STARTS HERE
+                       fluidRow(style = "background: #79133E; color: #fff",
+                                h3("Gender diversity")
+                                
+                                ), #End FluidRow
+                       
+                       fluidRow(style = "padding-left: 10%; padding-right: 10%; background: #79133E; padding-top: 20px; padding-bottom: 20px; color: #fff; font-size: 18px",
+                                column(width = 6,
+                                       p("Labour force participation among women in Canada has been steadily increasing.
+                                         In 2016, women made up 48 percent of the labour market."),
+                                       p("Despite these trends, in 2016 there were 584,000 more men in tech occupations than women. 
+                                         Men were almost four times more likely than women to work in a tech occupation—7.8 percent 
+                                         of men in the labour market were in tech occupations compared to 2.1 percent of women.")),
+                                column(width = 6,
+                                       align = "center",
+                                       tableOutput("gen.comp.table"))
+                                
                                 ), #EndFluidRow
                        
-                       fluidRow(align = "center",
-                                style = "font-size: 18px",
-                                htmlOutput("tech.premium.text")
-                                ), #EndFluidRow
+                       fluidRow(style = "bakground: #79133E; padding-left: 10%; padding-right: 10%; color: #fff; background: #79133E; font-size: 18px",
+                                column(width = 4,
+                                       img(src="tech_pic_3.png", style="width:100%; min_width: 180px")),
+                                column(width = 8, 
+                                       p("When it comes to the gender pay gap in Tech,
+                                          almost every major city in Canada has a higher gap than the Canadian average."),
+                                       htmlOutput("pay.gap.text"),
+                                       p("In our main report, we analyze this gender pay gap and see that this gap is persistent across education,
+                                         visible minority and immigration status, as well as age. Were you surprised with the gap
+                                         in the city you chose?"))
+                                ), #End FluidRow
                        
                        fluidRow(align = "center",
-                                plotOutput("gender.waffle.cma")
+                                style = "background: #79133E; padding-left: 10%; padding-right: 10%; padding-bottom: 20px",
+                                plotlyOutput("gen.pay.gap.cma",height="600px")
+                                ), #End FluidRow
+                       
+                       
+    #VISIBLE MINORITY STARTS HERE
+                       fluidRow(style = "background: #14365D; color: #fff",
+                                h3("Visible Minority")
+                                ), #End FluidRow
+ 
+
+                       fluidRow(style = "padding-left: 10%; padding-right: 10%; background: #14365D; padding-top: 20px; padding-bottom: 10px; color: #fff; font-size: 18px",
+                                column(width=6,
+                                       htmlOutput("vismin.comp.table",class = "inverse")),
+                                column(width=6,
+                                       p("Almost one-third of Canada's tech workers have visibile minority identities (31.9%).
+                                         8.5 percent, or almost one in twelve visible minorities was a tech worker, totalling 271,000 people"),
+                                       htmlOutput("vismin.sumtext", class="inverse"),
+                                       p("Yet, there are important differences between different visible minority groups, and with non-visible minorities.
+                                         In this application, we focus broadly on the idea of visible minorities. For a detailed look on how different groups
+                                         (such as those who identify as Black, Chinese, or South Asian) compare to each other, check out our main report."))
+                                ), #End FluidRow
+                       
+                       fluidRow(style = "padding-left: 10%; padding-right: 10%; background: #14365D; padding-top: 20px; padding-bottom: 10px; color: #fff; font-size: 18px",
+                                column(width = 7,
+                                       p("Blah blah text")),
+                                column(width = 4,
+                                       p("blah blah text"))
+                                ), #End FluidRow
+                       
+                       fluidRow(style = "padding-left: 10%; padding-right: 10%; background: #14365D; padding-top: 20px; padding-bottom: 10px; color: #fff; font-size: 18px",
+                                plotlyOutput("vismin.paygap",height="600px")
+                                ), #End FluidRow
+                       
+        #COMPARISON BEGINS HERE
+                       fluidRow(style = "background: #CEE6C1, color: #14365D; font-size: 18px",
+                                h3("Compare between cities/towns")
+                       ), #EndFluidRow
+                       
+                       
+                       fluidRow(style = "padding-top: 30px; padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                                p("Now that you've gotten a better idea of diversity in tech, you may want to compare between
+                                  different cities and/or towns. Use our tools to compare the topline numbers for up to 5 cities/towns, 
+                                  or download the entire dataset.")
                                 ), #EndFluidRow
                        
-                       fluidRow(align = "center",
-                                style = "font-size: 18px",
-                                htmlOutput("gender.cma.text")
-                                ), #EndFluidRow
+                       fluidRow(style = "padding-top: 30px; padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                                align = "center",
+                                selectizeInput(inputId = "comparison.cma.div",
+                                               label = "Select up to 5 metropolitan areas",
+                                               choices = sort(unique(cma_list[,GEO.NAME])),
+                                               selected = NULL,
+                                               multiple = TRUE,
+                                               options = list(maxItems = 5))
+                       ), #EndFluidRow
                        
-                       fluidRow(align = "center",
-                                plotlyOutput("female.pay.cma"))
+                       fluidRow(style = "padding-top: 30px; padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                                align = "center",
+                                tableOutput("comparison.diversity")
+                                ), #EndFluidRow
+    
+                       fluidRow(style = "padding-top: 30px; padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
+                                align = "center",
+                                downloadButton("download.div.specific","Download Current Table")
+                                ) #EndFluidRow
                        ) #End second tab panel
-              ) #EndNavbarPage
+        
+              ), #EndNavbarPage
+  fluidRow(style="background: #14365D",
+           div(class="footer",
+                 includeHTML("www/site_footer.html")))
 
    ) #EndFluidPage
 
@@ -353,31 +322,48 @@ server <- function(input, output) {
   output$CMA_choice <- renderUI(
     selectInput("cma",
                 label=NULL,
-                choice = unique(cma.data[stringr::str_sub(ID,1,2)==province.data[abbrev==input$province,code],Name])))
+                choice = sort(unique(cma.data[stringr::str_sub(ID,1,2)==province.data[abbrev==input$province,code],Name]))))
   #Interactive column plot of all the cities with the chosen city highlighted
-  output$CMA_chosen_2 <- renderText(
-    paste("This web-app examines the state of tech workers in ", input$cma))
+  
+  output$CMA_chosen_as_input <- renderUI(
+    paste(input$cma)
+  )
+  
+  output$CMA_chosen_2 <- renderText({
+    paste("Let's focus on ", input$cma,"'s story.",sep="")})
 
    output$cmatot <- renderPlotly({
-     noc.dem.tech.map[,cma.focus:="0"]
-     noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% input$cma,ID],cma.focus:="1"]
-     column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
-       geom_col(width=0.6) + 
-       BF.Base.Theme + 
-       scale_y_continuous(expand=c(0,0)) + 
-       theme(axis.text.x = element_blank()) +
-       scale_fill_manual(values = c("#14365D","#DD347A")) +
-       guides(fill="none",colour = "none") +
-       labs(y="",x="")
-       
-     #column.pct <- BFTheme::plot.column.bf(noc.dem.tech.map[tech==1],"pct","GEO.NAME",
-      #                                     order.bar = "ascending",
-       #                                    group.by="cma.focus",
-        #                                   colours = BFTheme::set.colours(2,categorical.choice = c("light.blue","pink")),
-         #                                  label.unit = "%",
-          #                                 col.invert = TRUE
-           #                                ) + ggplot2::guides(fill="none",colour = "none") + ggplot2::theme(axis.text.x = element_blank())
-     print(ggplotly(column.pct,tooltip=c("y","x"),showlegend=FALSE,showscale=FALSE))
+     if(!is.null(input$cma)){
+       noc.dem.tech.map[,cma.focus:="0"]
+       noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% input$cma,ID],cma.focus:="1"]
+       column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
+         geom_col(aes(text=paste(GEO.NAME,
+                                 "<br>",
+                                 "Concentration of Tech Workers:",
+                                 str_c(signif(pct,2),"%"))),
+                  width=0.6) + 
+         BF.Base.Theme + 
+         scale_y_continuous(expand=c(0,0),breaks = c(0,2.5,5,7.5,10),labels = c("0%","2.5%","5%","7.5%","10%")) + 
+         theme(axis.text.x = element_blank(),
+               axis.title.x = element_text(size=9, color="#14365D"),
+               axis.title.y = element_text(size=9, color="#14365D"),
+               axis.ticks.x = element_blank(),
+               axis.text.y = element_text(size=9, margin=ggplot2::margin(r=2),color="#14365D"),
+               axis.line = ggplot2::element_line(size=0.25, colour = "#14365D"),
+               legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#14365D"),
+               axis.ticks = ggplot2::element_line(size=0.15,colour = "#14365D")) +
+         scale_fill_manual(values = c("#14365D","#DD347A")) +
+         guides(fill="none",colour = "none") +
+         labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city")
+       graph <- config(layout(ggplotly(column.pct,tooltip=c("text"),showlegend=FALSE,showscale=FALSE),
+                              legend = list(orientation = 'h'),
+                              xaxis=list(fixedrange=TRUE), 
+                              yaxis=list(fixedrange=TRUE)),
+                       displayModeBar=F)
+       graph$x$data[[1]]$name <- "Other Cities/Towns"
+       graph$x$data[[2]]$name <- input$cma
+       print(graph)
+     }
    })
    #Top occupations both Absolute and Relative
    output$cmatopocc <- renderPlotly({
@@ -385,15 +371,23 @@ server <- function(input, output) {
      if(nrow(noc.dem.city.plot)>10){
        noc.dem.city.plot <- noc.dem.city.plot[(.N-9):.N]
      }
-     if(input$pct_or_tot=="Absolute"){
+     if(input$pct_or_tot=="Total Tech Workers"){
        plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,TOT),TOT),fill="#8AD4DF") +
-         geom_col(fill="#8AD4DF",width=0.6) +
+         geom_col(aes(text=paste(reorder(NOC,TOT),
+                                 "<br>",
+                                 "Total Employed:",
+                                 scales::comma(sort(TOT)))),
+                  fill="#8AD4DF",
+                  width=0.6) +
          BF.Base.Theme + 
          scale_y_continuous(expand=c(0,0)) + 
          guides(fill="none",colour = "none") +
-         theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
-         labs(y="",x="")
-       print(ggplotly(plot_pct_or_tot))
+         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+         labs(y="Total Employment",x="Hover over each bar to learn about an occupation.")
+       print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
+                           xaxis = list(fixedrange=TRUE),
+                           yaxis = list(fixedrange=TRUE)),
+                    displayModeBar=F))
        #print(ggplotly(BFTheme::plot.column.bf(noc.dem.city.plot,"TOT","NOC",
         #                       order.bar = "ascending",
         #                       colours = BFTheme::set.colours(1,categorical.choice = "light.blue"),
@@ -401,13 +395,21 @@ server <- function(input, output) {
      }
      else{
        plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,pct),pct),fill="#8AD4DF") +
-         geom_col(fill="#8AD4DF",width=0.6) +
+         geom_col(aes(text=paste(reorder(NOC,TOT),
+                                 "<br>",
+                                 "Share of Tech Workforce:",
+                                 str_c(round(sort(pct),2),"%"))),
+                  fill="#8AD4DF",
+                  width=0.6) +
          BF.Base.Theme + 
          scale_y_continuous(expand=c(0,0)) + 
          guides(fill="none",colour = "none") +
-         theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
-         labs(y="",x="")
-       print(ggplotly(plot_pct_or_tot))
+         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+         labs(y="Share of Local Tech Workforce",x="Hover over each bar to learn about an occupation")
+       print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
+                           xaxis = list(fixedrange=TRUE),
+                           yaxis = list(fixedrange=TRUE)),
+                    displayModeBar=F))
        #print(ggplotly(BFTheme::plot.column.bf(noc.dem.city.plot,"pct","NOC",
       #                         order.bar = "ascending",
       #                         label.unit = "%",
@@ -419,15 +421,23 @@ server <- function(input, output) {
    #Canada's top occupation both absolute and relative
    output$canadatopocc <- renderPlotly({
      noc.dem.canada.plot <- noc.dem.canada[(.N-9):.N]
-     if(input$pct_or_tot == "Absolute"){
+     if(input$pct_or_tot == "Total Tech Workers"){
        plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,TOT),TOT),fill="#8AD4DF") +
-         geom_col(fill="#8AD4DF",width=0.6) +
+         geom_col(aes(text=paste(reorder(NOC,TOT),
+                                 "<br>",
+                                 "Total Employed:",
+                                 scales::comma(sort(TOT)))),
+                  fill="#8AD4DF",
+                  width=0.6) +
          BF.Base.Theme + 
          scale_y_continuous(expand=c(0,0)) + 
          guides(fill="none",colour = "none") +
-         theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
+         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
          labs(y="",x="")
-       print(ggplotly(plot_pct_or_tot))
+       print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
+                           xaxis = list(fixedrange=TRUE),
+                           yaxis = list(fixedrange=TRUE)),
+                    displayModeBar=F))
        
        #print(ggplotly(BFTheme::plot.column.bf(noc.dem.canada.plot,"TOT","NOC",
       #                         order.bar="ascending",
@@ -436,13 +446,21 @@ server <- function(input, output) {
      }
      else{
        plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,pct),pct),fill="#8AD4DF") +
-         geom_col(fill="#8AD4DF",width=0.6) +
+         geom_col(aes(text=paste(reorder(NOC,TOT),
+                                 "<br>",
+                                 "Share of Tech Workforce:",
+                                 str_c(round(sort(pct),2),"%"))),
+                  fill="#8AD4DF",
+                  width=0.6) +
          BF.Base.Theme + 
          scale_y_continuous(expand=c(0,0)) + 
          guides(fill="none",colour = "none") +
-         theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
+         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
          labs(y="",x="")
-       print(ggplotly(plot_pct_or_tot))
+       print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
+                           xaxis = list(fixedrange=TRUE),
+                           yaxis = list(fixedrange=TRUE)),
+                    displayModeBar=F))
        #print(ggplotly(BFTheme::plot.column.bf(noc.dem.canada.plot,"pct","NOC",
       #                         order.bar = "ascending",
       #                         label.unit = "%",
@@ -452,40 +470,196 @@ server <- function(input, output) {
 
    })
    #Change in the tech workforce in text
-   output$cmatotnumtext <- renderUI(p("In 2016, there were ",
-                                            noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1],
-                                            " tech workers in",
+   output$cmatotnumtext <- renderUI({p("In 2016, ",
+                                      span(style="color:#DD347A",
+                                           paste(comma(noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% input$cma, ID] & tech==1,V1]),
+                                            " tech workers worked in ",
                                             paste(input$cma,
-                                            ". This means that ",sep=""),
-                                            paste(round(100*noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1]/891720,2),
-                                            "% of tech workers in Canada lived in ",sep=""),
-                                            paste(input$cma,".",sep="")))
+                                                  ".",sep=""))),
+                                      " That represents ",
+                                      span(style = "color:#DD347A",
+                                           paste(round(100*noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% input$cma, ID] & tech==1,V1]/891720,2),
+                                                 " percent of all tech workers in Canada.",sep="")
+                                           ),
+                                      "Did it exceed your expectations? In the past 10 years, 
+                                      over 180,000 workers joined the tech workforce in Canada and 180,000 more are predicted to 
+                                      join in the next 10 years according to Economics and Social Development Canada."
+                                       )
+                                      })
+
    
    #Workforce in 2006 vs 2016 comparison text
    output$cmain2006 <- renderUI({
-     difference <- noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1] - noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]
-     if(abs(difference)/noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1] < 0.01 | abs(difference)<50){
-       
-       p("In 2006, there were",
-             span(style="color: #F7941E",noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
-             "tech workers in",
-             paste(input$cma,".",sep="")," This means that the number of tech workers have been relatively unchanged over the past 10 years.")
+     if(nrow(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID]])==0){
+       p("Unfortunately, this city's population was too low in 2006 to have data published without confidentiality issues.")
      }
      else{
-       if(difference<0){
-         p("In 2006, there were",
-               span(style="color: #F7941E",noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
-               "tech workers in",
-           paste(input$cma,".",sep="")," This means that the number of tech workers have decreased over the past 10 years.")
+       difference <- noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1] - noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]
+       if(abs(difference)/noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1] < 0.01 | abs(difference)<50){
+         
+         p("Looking at the Census in 2006, we find that there were",
+           span(style="color: #DD347A",
+                paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
+                      " tech workers in ",
+                      input$cma,
+                      ".",
+                      sep="")
+                ),
+           " This means that the number of tech workers have been relatively unchanged over the past 10 years."
+           )
        }
        else{
-         p("In 2006, there were",
-               span(style="color: #F7941E",noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
-               "tech workers in",
-           paste(input$cma,".",sep="")," This means that the number of tech workers have increased over the past 10 years.")         
+         if(difference<0){
+           p("Looking at the Census in 2006, we find that there were ",
+             span(style="color: #DD347A",
+                  paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
+                        " tech workers in ",
+                        input$cma,
+                        ".",
+                        sep="")
+                  ),
+             " This means that the number of tech workers have decreased over the past 10 years."
+             )
+         }
+         else{
+           p("Looking at the Census in 2006, we find that there were",
+             span(style="color: #DD347A",
+                  paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
+                        " tech workers in ",
+                        input$cma,
+                        ".",
+                        sep=""
+                        )
+                  ),
+             " This means that the number of tech workers have increased over the past 10 years."
+             )         
+         }
        }
      }
+     
    })
+   
+   output$educ.column <- renderPlotly({
+     cma.ca.educ[,EDUC15:=str_wrap(EDUC15,30)]
+     cma.ca.educ[,EDUC15:=reorder(EDUC15,EDUC15.ID)]
+     cma.ca.educ[,dum:=0]
+     cma.ca.educ[ALT.GEO.CODE %in% cma.data[Name %in% input$cma,ID],dum:=1]
+     plot.educ.share <- ggplot(data=cma.ca.educ[dum==0],aes(EDUC15,pct)) +
+       BF.Base.Theme +
+       theme(axis.text.x = element_text(size=9,colour="#14365D"),
+             axis.text.y = element_text(size=9,colour="#14365D"),
+             panel.grid.major.y = element_line(size=0.1,colour = "#14365D"),
+             axis.line = ggplot2::element_line(size=0.25, colour = "#14365D"),
+             axis.ticks = ggplot2::element_line(size=0.15,colour = "#14365D"),
+             axis.title.x = element_text(size=10,colour = "#14365D"),
+             axis.title.y = element_blank()) +
+       geom_line(aes(group=GEO.NAME),color = "#14365D",alpha=0.3) +
+       scale_y_continuous(breaks = c(0,25,50,75,100),
+                          limits = c(0,100),
+                          labels = c("0%","25%","50%","75%","100%")) +
+       geom_point(data=cma.ca.educ[dum == 1],
+                  aes(EDUC15,pct, text = paste(GEO.NAME,"<br>","Share of Tech Workforce: ",round(pct),"%")),
+                  color = "#DD347A",
+                  size=2) +
+       geom_line(data=cma.ca.educ[dum == 1],
+                 aes(EDUC15,pct,group = GEO.NAME),
+                 color = "#DD347A",
+                 size=1) +
+       labs(y = "Share of Tech Workers \n Each line represents a city/town") +
+       coord_flip()
+     
+     plotly.plot.educ.share <- config(layout(ggplotly(plot.educ.share,tooltip=c("text")),
+                                             xaxis = list(fixedrange=TRUE),
+                                             yaxis = list(fixedrange=TRUE),
+                                             margin = list(l=200)),
+                                      displayModeBar=F)
+     
+     plotly.plot.educ.share$x$data[[1]]$hoverinfo <- "skip"
+     
+     plotly.plot.educ.share
+   })
+   
+   output$educ.text <- renderUI({
+     p("Tech Workers in Canada are highly educated. 
+       In fact, almost 58% of tech workers hold a Bachelor's degree or above. 
+       Workers not in tech occupations were almost half as likely to hold a Bachelor's degree or above (26%).",
+       span(style="color: #DD347A",paste("In ",input$cma,", ",
+             round(cma.ca.educ[ALT.GEO.CODE %in% cma.data[Name %in% input$cma,ID] & EDUC15.ID==10,pct]),"%", sep = ""),
+       " of tech workers held a Bachelor's degree or above."
+       ))
+   })
+   
+   comparison.table.topline <- reactive({
+     topline.vars <- c("Number of Tech Workers",
+                       "Concentration of Tech Workers",
+                       "Number of Tech Workers in 2006",
+                       "Share of Tech Workers with Bachelors Degree or higher")
+     final.table <- data.table(first.col = topline.vars)
+     names(final.table) <- c("Metrics")
+     if(length(input$comparison.cma)>0){
+       #Set up first column
+       if(!is.na(input$comparison.cma[1][[1]])){
+         first.city <- c(comma(round(noc.dem.tech.map[tech==1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[1][[1]],ID],V1])),
+                         str_c(signif(noc.dem.tech.map[tech==1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[1][[1]],ID],pct],2),"%"),
+                         ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[1][[1]],ID],V1])==0,
+                                "NA",
+                                comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[1][[1]],ID],V1]))),
+                         str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% input$comparison.cma[1][[1]],ID],pct],2),"%"))
+         final.table[,first:=first.city]
+       }
+       #Set up second column
+       if(!is.na(input$comparison.cma[2][[1]])){
+         second.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[2][[1]],ID],V1])),
+                          str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[2][[1]],ID],pct],2),"%"),
+                          ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[2][[1]],ID],V1])==0,
+                                 "NA",
+                                 comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[2][[1]],ID],V1]))),
+                          str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% input$comparison.cma[2][[1]],ID],pct],2),"%"))
+         final.table[,second:=second.city]
+       }
+       #Set up third column
+       if(!is.na(input$comparison.cma[3][[1]])){
+         third.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[3][[1]],ID],V1])),
+                         str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[3][[1]],ID],pct],2),"%"),
+                         ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[3][[1]],ID],V1])==0,
+                                "NA",
+                                comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[3][[1]],ID],V1]))),
+                         str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% input$comparison.cma[3][[1]],ID],pct],2),"%"))
+         final.table[,third:=third.city]
+       }
+       #Set up fourth column
+       if(!is.na(input$comparison.cma[4][[1]])){
+         fourth.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[4][[1]],ID],V1])),
+                          str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[4][[1]],ID],pct],2),"%"),
+                          ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[4][[1]],ID],V1])==0,
+                                 "NA",
+                                 comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[4][[1]],ID],V1]))),
+                          str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% input$comparison.cma[4][[1]],ID],pct],2),"%"))
+         final.table[,fourth:=fourth.city]
+       }
+       #Set up fifth column
+       if(!is.na(input$comparison.cma[5][[1]])){
+         fifth.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[5][[1]],ID],V1])),
+                         str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == input$comparison.cma[5][[1]],ID],pct],2),"%"),
+                         ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[5][[1]],ID],V1])==0,
+                                "NA",
+                                comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == input$comparison.cma[5][[1]],ID],V1]))),
+                         str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% input$comparison.cma[5][[1]],ID],pct],2),"%"))
+         final.table[,fifth:=fifth.city]
+       }
+       names(final.table) <- c("Metrics", input$comparison.cma)
+     }
+     final.table
+   })
+   
+   output$comparison.topline <- renderTable(comparison.table.topline())
+   
+   output$download.topline.specific <- downloadHandler(filename = "tech_topline_selected.csv",
+                                                       content=function(file){
+                                                         write.csv(comparison.table.topline(),
+                                                                   file,
+                                                                   row.names = FALSE)
+                                                       })
      
    ################ Output for second tab
    output$tech.pre.scatter <- renderPlotly({
@@ -494,31 +668,55 @@ server <- function(input, output) {
      tech_premium[GEO.NAME==input$cma_div,color:="2"]
      
      scatter.tech.plot <- ggplot(data=tech_premium, aes(non.tech.pay,tech.pay,colour=color)) +
-       geom_point(size=2.3) +
+       geom_point(aes(text=paste(GEO.NAME,
+                                 "<br>",
+                                 "Average Pay in Tech Occupations:",
+                                 str_c("$",comma(tech.pay)),
+                                 "<br>",
+                                 "Average Pay in Non-Tech Occupations:",
+                                 str_c("$",comma(non.tech.pay)))),
+                  size=2.3) +
        BF.Base.Theme +
-       scale_colour_manual(values=c("#14365D","#DD347A","#82C458"))
-     #scatter.tech.plot <- BFTheme::plot.scatter.bf(tech_premium,"non.tech.pay","tech.pay",group.by="color",
-    #                                               colours = set.colours(3,categorical.choice = c("green","dark.blue","pink")),
-    #                                               unit.x = "$",
-    #                                               unit.y = "$",
-    #                                               x.axis = "Average pay for non-tech jobs",
-    #                                               y.axis = "Average pay for tech jobs")
-     ggplotly(scatter.tech.plot)
+       theme(axis.text.x = element_text(size = 9, colour = "#14365D"),
+             axis.text.y = element_text(size = 9, colour = "#14365D"),
+             axis.title.x = element_text(size = 9, colour = "#14365D"),
+             axis.title.y = element_text(size = 9, colour = "#14365D"),
+             axis.line.y = element_line(size = 0.25, colour = "#14365D"),
+             axis.line.x = element_line(size = 0.25, colour = "#14365D"),
+             axis.ticks.x = element_line(size = 0.25, colour = "#14365D"),
+             axis.ticks.y = element_line(size = 0.25, colour = "#14365D"),
+             legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#14365D")) +
+       scale_colour_manual(values=c("#14365D","#707D85","#DD347A")) +
+       scale_y_continuous(breaks = c(60000,75000,90000,105000),labels = c("$60,000","$75,000","$90,000","$105,000")) +
+       scale_x_continuous(breaks = c(40000,50000,60000,70000),labels = c("$40,000","$50,000","$60,000","$70,000")) +
+       labs(y="Average Pay in Tech Occupations",x="Average Pay in Non-Tech Occupations")
+     graph <- config(layout(ggplotly(scatter.tech.plot,tooltip=c("text")),
+                            legend = list(orientation = 'h'),
+                            xaxis = list(fixedrange=TRUE),
+                            yaxis = list(fixedrange=TRUE)),
+                     displayModeBar=F)
+     graph$x$data[[1]]$name <- "Canada"
+     graph$x$data[[2]]$name <- "Other metropolitan areas"
+     graph$x$data[[3]]$name <- input$cma_div
+     print(graph)
    })
    
    output$tech.premium.text <- renderUI({
      p("In ",
-       paste(input$cma_div,",",sep=""),
-       " tech workers were paid ",
-       paste("$",round(tech_premium[GEO.NAME==input$cma_div,tech.pay]),sep=""),
-       "; this was ",
-       paste("$",round(tech_premium[GEO.NAME==input$cma_div,tech.pay-non.tech.pay]),sep=""),
-       "more than non-tech workers.")
+       span(style ="color: #DD347A",
+            paste(input$cma_div,",",sep=""),
+            " tech workers were paid ",
+            paste("$",comma(signif(tech_premium[GEO.NAME==input$cma_div,tech.pay])),sep=""),
+            "; this was ",
+            paste("$",comma(signif(tech_premium[GEO.NAME==input$cma_div,tech.pay-non.tech.pay])),sep=""),
+            "more than non-tech workers."))
+            
+       
    })
    
    output$gender.waffle.cma <- renderPlot({
      female.share <- round(tech_gender[GEO.NAME==input$cma_div,share_tech])
-     plot.waffle.bf(c("Male"=100-female.share,"Female"=female.share))
+     plot.waffle.bf(c("Male"=100-female.share,"Female"=female.share),row.num = 10)
    }, bg = "transparent")
    
    output$gender.cma.text <- renderUI({
@@ -531,26 +729,216 @@ server <- function(input, output) {
        paste("in ",input$cma_div,sep=""))
    })
    
-   output$female.pay.cma <- renderPlotly({
+   output$gen.pay.gap.cma <- renderPlotly({
      tech_gender[GEO.NAME=="Canada",color:="0"]
      tech_gender[GEO.NAME!="Canada",color:="1"]
      tech_gender[GEO.NAME==input$cma_div,color:="2"]
-     plot.female.pay <- ggplot(data=tech_gender,aes(reorder(GEO.NAME,V2),V2)) +
-       geom_col(aes(fill=color)) +
+     plot.female.pay <- ggplot(data=tech_gender,aes(reorder(GEO.NAME,pay.gap),pay.gap)) +
+       geom_col(aes(fill=color,
+                    text= paste(GEO.NAME,
+                                "<br>",
+                                "Gender Pay Gap in Tech Occupations:",
+                                str_c("$",scales::comma(pay.gap)))),
+                width=0.6) +
        BF.Base.Theme +
        scale_y_continuous(expand=c(0,0)) + 
-       scale_fill_manual(values=c("#DD347A","#14365D","#82C458")) +
+       scale_fill_manual(values=c("#82C458","#14365D","#DD347A")) +
        guides(fill="none",colour = "none") +
        theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
-       labs(y="",x="")
-       
-     #ggplotly(BFTheme::plot.column.bf(tech_gender,"V2","GEO.NAME",
-    #                                  group.by="color",
-    #                                  order.bar = "ascending",
-    #                                  col.invert = TRUE,
-    #                                  colours=set.colours(3,categorical.choice = c("green","dark.blue","pink")),
-    #                                  label.unit = "$"))
+       labs(y="Gender Pay Gap in Tech Occupations",x="Each bar is a Metropolitan Area.")
+     print(config(layout(ggplotly(plot.female.pay,tooltip=c("text")),
+                         xaxis = list(fixedrange=TRUE),
+                         yaxis = list(fixedrange=TRUE),
+                         showlegend = FALSE),
+                  displayModeBar=F))
+     
+
    })
+   
+   output$pay.gap.text <- renderUI({
+     gap.amount <- tech_gender[GEO.NAME %in% input$cma_div,pay.gap]
+     p("In ",
+       span(style = "color: #8AD4DF",
+            paste(input$cma_div,",",sep=""),
+            " the gender pay gap for tech workers was around",
+            paste(" $",comma(signif(gap.amount,3)),sep=""),"."))
+
+   })
+   
+   output$gen.comp.table <- renderTable({
+     measure.vector <- c("Number of Female in Tech",
+                         "Share of Female in Tech",
+                         "Female Participation in Tech",
+                         "Female Pay in Tech",
+                         "Female Pay in non-Tech")
+     city.vector <- c(comma(round(tech_gender[GEO.NAME %in% input$cma_div,V1])),
+                      str_c(signif(tech_gender[GEO.NAME %in% input$cma_div,share_tech],2),"%"),
+                      str_c(signif(tech_gender[GEO.NAME %in% input$cma_div,prop.tech],2),"%"),
+                      str_c("$",comma(signif(tech_gender[GEO.NAME %in% input$cma_div,V2],3))),
+                      str_c("$",comma(signif(tech_gender[GEO.NAME %in% input$cma_div,non.tech.pay],3))))
+     
+     can.vector <- c(comma(round(tech_gender[GEO.NAME == "Canada",V1])),
+                     str_c(signif(tech_gender[GEO.NAME == "Canada",share_tech],2),"%"),
+                     str_c(signif(tech_gender[GEO.NAME == "Canada",prop.tech],2),"%"),
+                     str_c("$",comma(signif(tech_gender[GEO.NAME == "Canada",V2],3))),
+                     str_c("$",comma(signif(tech_gender[GEO.NAME == "Canada",non.tech.pay],3))))
+     
+     table.to.display <- data.table("Measure"=measure.vector,"City"=city.vector,"Canada"=can.vector)
+     names(table.to.display) <- c("Measure",stringr::str_wrap(input$cma_div,15),"Canada")
+     table.to.display
+   })
+   
+   output$vismin.comp.table <- renderTable({
+     measure.vector <- c("Number of Visible Minority in Tech",
+                         "Share of Visible Minority in Tech",
+                         "Visible Minority Participation in Tech",
+                         "Visible Minority Pay in Tech",
+                         "Visible Minority Pay in non-Tech")
+     city.vector <- c(comma(round(tech_vismin[GEO.NAME %in% input$cma_div & VIS.MIN15.ID == 2,V1])),
+                      str_c(signif(tech_vismin[GEO.NAME %in% input$cma_div & VIS.MIN15.ID == 2,share.tech],2),"%"),
+                      str_c(signif(tech_vismin[GEO.NAME %in% input$cma_div & VIS.MIN15.ID == 2,prop.tech],2),"%"),
+                      str_c("$",comma(signif(tech_vismin[GEO.NAME %in% input$cma_div & VIS.MIN15.ID == 2,V2],3))),
+                      str_c("$",comma(signif(tech_vismin[GEO.NAME %in% input$cma_div & VIS.MIN15.ID == 2,non.tech.pay],3))))
+     
+     can.vector <- c(comma(round(tech_vismin[GEO.NAME == "Canada" & VIS.MIN15.ID == 2,V1])),
+                     str_c(signif(tech_vismin[GEO.NAME == "Canada" & VIS.MIN15.ID == 2,share.tech],2),"%"),
+                     str_c(signif(tech_vismin[GEO.NAME == "Canada" & VIS.MIN15.ID == 2,prop.tech],2),"%"),
+                     str_c("$",comma(signif(tech_vismin[GEO.NAME == "Canada" & VIS.MIN15.ID == 2,V2],3))),
+                     str_c("$",comma(signif(tech_vismin[GEO.NAME == "Canada" & VIS.MIN15.ID == 2,non.tech.pay],3))))
+     
+     table.to.display <- data.table("Measure"=measure.vector,"City"=city.vector,"Canada"=can.vector)
+     names(table.to.display) <- c("Measure",stringr::str_wrap(input$cma_div,15),"Canada")
+     table.to.display
+   })
+   
+   output$vismin.sumtext <- renderUI({
+     num.vismin <- signif(tech_vismin[GEO.NAME %in% input$cma_div & VIS.MIN15.ID == 2, V1],3)
+     p("In 2016, ",
+       span(style ="color: #DD347A" ,
+            paste(comma(num.vismin)," visible minorities worked",sep=""),
+                   " in tech occupations in ",
+                   paste(input$cma_div,".",sep="")))
+
+   })
+   
+   
+   output$vismin.paygap <- renderPlotly({
+     tech_vismin[GEO.NAME=="Canada",color:="0"]
+     tech_vismin[GEO.NAME!="Canada",color:="1"]
+     tech_vismin[GEO.NAME %in% input$cma_div,color:="2"]
+     plot.vismin.pay <- ggplot(data=tech_vismin[VIS.MIN15.ID==2],aes(reorder(GEO.NAME,pay.gap),pay.gap)) +
+       geom_col(aes(fill=color,
+                    text= paste(GEO.NAME,
+                                "<br>",
+                                "Visible Minority Pay Gap in Tech Occupations:",
+                                str_c("$",scales::comma(pay.gap)))),
+                width=0.6) +
+       BF.Base.Theme +
+       scale_y_continuous(expand=c(0,0)) + 
+       scale_fill_manual(values=c("#82C458","#8AD4DF","#DD347A")) +
+       guides(fill="none",colour = "none") +
+       theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
+       labs(y="Visible Minority Pay Gap in Tech Occupations",x="Each bar is a Metropolitan Area.")
+     print(config(layout(ggplotly(plot.vismin.pay,tooltip=c("text")),
+                         xaxis = list(fixedrange=TRUE),
+                         yaxis = list(fixedrange=TRUE),
+                         showlegend = FALSE),
+                  displayModeBar=F))
+     
+
+   })
+   
+   comparison.table.diversity <- reactive({
+     topline.vars <- c("Overall Tech Worker Pay",
+                       "Overall Non-Tech Worker Pay",
+                       "Share of Tech Workers who are Female",
+                       "Share of Female who are Tech Workers",
+                       "Pay Difference by Sex",
+                       "Share of Tech Workers who are in a Visible Minority Group",
+                       "Share of Visible Minorities who are Tech Workers",
+                       "Pay Difference by Visible Minority Identities")
+     final.table.div <- data.table(first.col = topline.vars)
+     names(final.table.div) <- c("Metrics")
+     if(length(input$comparison.cma.div)>0){
+       #Set up first column
+       if(!is.na(input$comparison.cma.div[1][[1]])){
+         first.city <- c(str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE],tech.pay],3))),
+                         str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE],non.tech.pay],3))),
+                         str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE],share_tech],2),"%"),
+                         str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE],prop.tech],2),"%"),
+                         str_c("$",comma(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE],pay.gap],3))),
+                         str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE] & VIS.MIN15.ID == 2, share.tech],2),"%"),
+                         str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE] & VIS.MIN15.ID == 2, prop.tech],2),"%"),
+                         str_c("$",comma(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[1][[1]],GEO.CODE] & VIS.MIN15.ID == 2, pay.gap],3)))
+         )
+         final.table.div[,first:=first.city]
+       }
+       #Set up second column
+       if(!is.na(input$comparison.cma.div[2][[1]])){
+         second.city <- c(str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE],tech.pay],3))),
+                          str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE],non.tech.pay],3))),
+                          str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE],share_tech],2),"%"),
+                          str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE],prop.tech],2),"%"),
+                          str_c("$",comma(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE],pay.gap],3))),
+                          str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE] & VIS.MIN15.ID == 2, share.tech],2),"%"),
+                          str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE] & VIS.MIN15.ID == 2, prop.tech],2),"%"),
+                          str_c("$",comma(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[2][[1]],GEO.CODE] & VIS.MIN15.ID == 2, pay.gap],3)))
+         )
+         final.table.div[,second:=second.city]
+       }
+       #Set up third column
+       if(!is.na(input$comparison.cma.div[3][[1]])){
+         third.city <- c(str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE],tech.pay],3))),
+                         str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE],non.tech.pay],3))),
+                         str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE],share_tech],2),"%"),
+                         str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE],prop.tech],2),"%"),
+                         str_c("$",comma(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE],pay.gap],3))),
+                         str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE] & VIS.MIN15.ID == 2, share.tech],2),"%"),
+                         str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE] & VIS.MIN15.ID == 2, prop.tech],2),"%"),
+                         str_c("$",comma(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[3][[1]],GEO.CODE] & VIS.MIN15.ID == 2, pay.gap],3)))
+         )
+         final.table.div[,third:=third.city]
+       }
+       #Set up fourth column
+       if(!is.na(input$comparison.cma.div[4][[1]])){
+         fourth.city <- c(str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE],tech.pay],3))),
+                          str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE],non.tech.pay],3))),
+                          str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE],share_tech],2),"%"),
+                          str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE],prop.tech],2),"%"),
+                          str_c("$",comma(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE],pay.gap],3))),
+                          str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE] & VIS.MIN15.ID == 2, share.tech],2),"%"),
+                          str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE] & VIS.MIN15.ID == 2, prop.tech],2),"%"),
+                          str_c("$",comma(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[4][[1]],GEO.CODE] & VIS.MIN15.ID == 2, pay.gap],3)))
+         )
+         final.table.div[,fourth:=fourth.city]
+       }
+       #Set up fifth column
+       if(!is.na(input$comparison.cma.div[5][[1]])){
+         fifth.city <- c(str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE],tech.pay]),3)),
+                         str_c("$",comma(signif(tech_premium[GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE],non.tech.pay]),3)),
+                         str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE],share_tech],2),"%"),
+                         str_c(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE],prop.tech],2),"%"),
+                         str_c("$",comma(signif(tech_gender[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE],pay.gap],3))),
+                         str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE] & VIS.MIN15.ID == 2, share.tech],2),"%"),
+                         str_c(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE] & VIS.MIN15.ID == 2, prop.tech],2),"%"),
+                         str_c("$",comma(signif(tech_vismin[ALT.GEO.CODE %in% cma_list[GEO.NAME == input$comparison.cma.div[5][[1]],GEO.CODE] & VIS.MIN15.ID == 2, pay.gap],3)))
+         )
+         final.table.div[,fifth:=fifth.city]
+       }
+       names(final.table.div) <- c("Metrics", input$comparison.cma.div)
+     }
+     final.table.div
+   })
+   
+   output$comparison.diversity <- renderTable(comparison.table.diversity())
+   
+   output$download.div.specific <- downloadHandler(filename = "tech_diversity_selected.csv",
+                                                   content=function(file){
+                                                     write.csv(comparison.table.diversity(),
+                                                               file,
+                                                               row.names = FALSE)
+                                                   })
+   
 
      
 

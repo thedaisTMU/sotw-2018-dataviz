@@ -5,8 +5,8 @@ account: vviet
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 388810
-bundleId: 1558380
+bundleId: 1582726
 url: https://vviet.shinyapps.io/Test_SOTS/
-when: 1535476847.10603
+when: 1536782337.38555
 asMultiple: FALSE
 asStatic: FALSE
