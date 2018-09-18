@@ -28,8 +28,10 @@ source("definitions.R")
 ui <- fluidPage(theme="style.css",
    
    # Application title
-   titlePanel(div(style="padding-right: 10%; padding-left: 10%",img(src="biie-logo-web-500width.png",width="250px"),"State of Canada's Tech Sector"),
-              windowTitle = "Brookfield Institute - State of Canada's Tech Workers 2018"),
+   titlePanel(div(style="padding-right: 10%; padding-left: 10%", #Add some nice padding
+                  img(src="biie-logo-web-500width.png",width="250px"), #Add Brookfield logo to the header
+                  "2018 State of Canada's Tech Sector"), #Name of the viz
+              windowTitle = "Brookfield Institute - State of Canada's Tech Workers 2018"), #Name to show up on browser. Favicon is set in css document
    tags$style("body{background:#CEE6C1;
               color:#14365D}"),
    # Sidebar with a slider input for number of bins 
@@ -159,7 +161,7 @@ ui <- fluidPage(theme="style.css",
                       fluidRow(style = "padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
                                p("Now that you've gotten a better idea of the topline numbers, you may want to compare between
                                  different cities and/or towns. Use our tools to compare the topline numbers for up to 5 cities/towns, 
-                                 or download the entire dataset.")
+                                 and download the resulting table.")
                       ), #EndFluidRow
                 
                       fluidRow(style = "padding-bottom: 30px; padding-right: 10%; padding-left: 10%; background: #CEE6C1, color: #14365D; font-size: 18px",
@@ -228,7 +230,7 @@ ui <- fluidPage(theme="style.css",
                                 
                                 ), #EndFluidRow
                        
-                       fluidRow(style = "bakground: #79133E; padding-left: 10%; padding-right: 10%; color: #fff; background: #79133E; font-size: 18px",
+                       fluidRow(style = "bakground: #79133E; padding-left: 10%; padding-right: 10%; color: #fff; background: #79133E; font-size: 18px; display:flex; align-items:center",
                                 column(width = 4,
                                        img(src="tech_pic_3.png", style="width:100%; min_width: 180px")),
                                 column(width = 8, 
@@ -266,7 +268,7 @@ ui <- fluidPage(theme="style.css",
                        
                        fluidRow(style = "padding-left: 10%; padding-right: 10%; background: #14365D; padding-top: 20px; padding-bottom: 10px; color: #fff; font-size: 18px",
                                 column(width = 7,
-                                       p("Blah blah text")),
+                                       p("When it comes to the pay gap that exists between visible minorities groups and non-visible minorities, the .")),
                                 column(width = 4,
                                        p("blah blah text"))
                                 ), #End FluidRow
@@ -311,6 +313,7 @@ ui <- fluidPage(theme="style.css",
               ), #EndNavbarPage
   fluidRow(style="background: #14365D",
            div(class="footer",
+               style = "padding-left: 15%; padding-right: 15%";
                  includeHTML("www/site_footer.html")))
 
    ) #EndFluidPage
