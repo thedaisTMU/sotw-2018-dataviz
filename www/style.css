@@ -1,3 +1,5 @@
+
+
 /* BII+E fonts */
 @font-face {
     src: url("RooneyPro Bold.ttf");
@@ -103,8 +105,32 @@
   font-style: normal;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*CSS for main components*/
+
 html *{
-  font-family: 'rooneysansregular' !important
+  font-family: 'rooneysansregular' !important /*Important tag is needed to make sure plotlyoutput also has RooneySans font*/
+}
+
+body {
+  background:#CEE6C1;
+  color:#14365D;
+}
+h3{
+  padding-top: 15px; 
 }
 
 .container-fluid{
@@ -113,6 +139,31 @@ html *{
   font-family: 'rooneysansregular';
 }
 
+
+.row{
+  margin-right: 0px;
+  padding-top: 20px; 
+  padding-bottom: 20px;
+  margin-left: 0px;
+  padding-right: 10%;
+  padding-left: 10%;
+  font-size: 18px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*CSS For Nav Bar*/
 .navbar{
   background: #14365D;
   color: #14365D;
@@ -157,12 +208,22 @@ html *{
   background: #8AD4DF;
 }
 
-h3{
-  padding-top: 15px; 
-  padding-bottom: 30px; 
-  padding-right: 10%; 
-  padding-left: 10%;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*CSS For Tables*/
 
 .table>thead>tr>th{
   background: #14365D;
@@ -190,15 +251,22 @@ h3{
 
 
 
-.row{
-  margin-right: 0px;
-  margin-left: 0px;
-  padding-right: 15px;
-  padding-left: 15px;
-}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+/*CSS for Input Selection Box*/
 .selectize-input{
   border-bottom-color: #14365D;
   border-style: none;
@@ -245,8 +313,28 @@ h3{
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*CSS For footer*/
 path.svg-fill-white{
   fill:#fff;
+}
+
+
+.footer>.container>.row{
+  padding-right: 0%;
+  padding-left: 0%;
 }
 
 .footernav>ul>li>a{
@@ -340,6 +428,32 @@ path.svg-fill-white{
   text-decoration: underline;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*!
+ *  Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome
+ *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
+ */
+/* FONT PATH
+ * -------------------------- */
+
 .#{$fa-css-prefix},
 .fas,
 .far,
@@ -353,13 +467,6 @@ path.svg-fill-white{
   text-rendering: auto;
   line-height: 1;
 }
-
-/*!
- *  Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome
- *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
- */
-/* FONT PATH
- * -------------------------- */
 
 .fa {
   display: inline-block;

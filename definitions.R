@@ -1,11 +1,14 @@
+################################
+# This file sets some of the global definitions needed - set colour function and BF plot theme maily - will adjust as needed.
+
+
 library(shiny)
-#library(BFTheme)
 library(stringr)
 library(data.table)
 library(ggplot2)
-#library(extrafont)
 library(plotly)
 library(scales)
+
 
 BF.Base.Theme <- ggplot2::theme(panel.background = ggplot2::element_rect(fill="transparent", colour=NA), #Make sure plot area background is transparent
                                 plot.background = ggplot2::element_rect(fill="transparent", colour=NA), #Make sure render area background is transparent
@@ -188,3 +191,6 @@ plot.waffle.bf <- function(named.vector,
   }
   return(p)
 }
+
+
+
