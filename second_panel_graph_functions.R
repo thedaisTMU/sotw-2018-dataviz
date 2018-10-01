@@ -21,16 +21,16 @@ plot.scatter.income <- function(name_to_use){
                               str_c("$",comma(non.tech.pay)))),
                size=2.3) +
     BF.Base.Theme +
-    theme(axis.text.x = element_text(size = 9, colour = "#14365D"),
-          axis.text.y = element_text(size = 9, colour = "#14365D"),
-          axis.title.x = element_text(size = 9, colour = "#14365D"),
-          axis.title.y = element_text(size = 9, colour = "#14365D"),
-          axis.line.y = element_line(size = 0.25, colour = "#14365D"),
-          axis.line.x = element_line(size = 0.25, colour = "#14365D"),
-          axis.ticks.x = element_line(size = 0.25, colour = "#14365D"),
-          axis.ticks.y = element_line(size = 0.25, colour = "#14365D"),
-          legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#14365D")) +
-    scale_colour_manual(values=c("#14365D","#707D85","#DD347A")) +
+    theme(axis.text.x = element_text(size = 9, colour = "#072b49"),
+          axis.text.y = element_text(size = 9, colour = "#072b49"),
+          axis.title.x = element_text(size = 9, colour = "#072b49"),
+          axis.title.y = element_text(size = 9, colour = "#072b49"),
+          axis.line.y = element_line(size = 0.25, colour = "#072b49"),
+          axis.line.x = element_line(size = 0.25, colour = "#072b49"),
+          axis.ticks.x = element_line(size = 0.25, colour = "#072b49"),
+          axis.ticks.y = element_line(size = 0.25, colour = "#072b49"),
+          legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#072b49")) +
+    scale_colour_manual(values=c("#072b49","#9cdae7","#e24585")) +
     scale_y_continuous(breaks = c(60000,75000,90000,105000),labels = c("$60,000","$75,000","$90,000","$105,000")) +
     scale_x_continuous(breaks = c(40000,50000,60000,70000),labels = c("$40,000","$50,000","$60,000","$70,000")) +
     labs(y="Average Pay in Tech Occupations",x="Average Pay in Non-Tech Occupations")
@@ -58,25 +58,27 @@ plot.gender.paygap <- function(name_to_use){
                              str_c("$",scales::comma(pay.gap)))),
              width=0.6) +
     BF.Base.Theme +
-    scale_y_continuous(expand=c(0,0)) + 
-    scale_fill_manual(values=c("#82C458","#14365D","#DD347A")) +
+    scale_y_continuous(expand=c(0,0),breaks = c(0,10000,20000,30000),labels = c("$0","$10,000","$20,000","$30,000")) + 
+    scale_fill_manual(values=c("#82C458","#072b49","#e24585")) +
     guides(fill="none",colour = "none") +
-    theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
-    labs(y="Gender Pay Gap in Tech Occupations",x="Each bar is a Metropolitan Area.")
+    theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="#072b49")) +
+    labs(y="Each bar is a Metropolitan Area",x="",title="Gender Pay Gap in Tech Occupations") +
+    coord_flip()
   print(config(layout(ggplotly(plot.female.pay,tooltip=c("text")),
                       xaxis = list(fixedrange=TRUE),
                       yaxis = list(fixedrange=TRUE),
+                      margin = list(l = 200,t=100),
                       showlegend = FALSE),
                displayModeBar=F))
 }
 
 #Draw table that compares gender number for chosen CMA with Canada
 draw.gender.table <- function(name_to_use){
-  measure.vector <- c("Number of Female in Tech",
-                      "Share of Female in Tech",
-                      "Female Participation in Tech",
-                      "Female Pay in Tech",
-                      "Female Pay in non-Tech")
+  measure.vector <- c("<div class=tooltiphelp>Number of women in Tech <span class=tooltiptexthelp>Total number of tech workers in a geographic area who identifies as female</span></div>",
+                      "<div class=tooltiphelp>Share of women in Tech <span class=tooltiptexthelp>Share of tech workforce in a geographic area who identifies as female </span> </div>",
+                      "<div class=tooltiphelp>Women participation in Tech <span class=tooltiptexthelp>Share of all female workers in a geographic area who works in tech occupations</span></div>",
+                      "<div class=tooltiphelp>Average women pay in Tech<span class=tooltiptexthelp>Mean pay for female tech workers in a geographic area</span></div>",
+                      "<div class=tooltiphelp>Average women pay in non-Tech<span class=tooltiptexthelp>Mean pay for female non-tech workers in a geographic area</span></div>")
   city.vector <- c(comma(round(tech_gender[GEO.NAME %in% name_to_use,V1])),
                    str_c(signif(tech_gender[GEO.NAME %in% name_to_use,share_tech],2),"%"),
                    str_c(signif(tech_gender[GEO.NAME %in% name_to_use,prop.tech],2),"%"),
@@ -96,11 +98,11 @@ draw.gender.table <- function(name_to_use){
 
 #Draw table that compares Visible Minority numbers for chosen CMA with Canada
 draw.vismin.table <- function(name_to_use){
-  measure.vector <- c("Number of Visible Minority in Tech",
-                      "Share of Visible Minority in Tech",
-                      "Visible Minority Participation in Tech",
-                      "Visible Minority Pay in Tech",
-                      "Visible Minority Pay in non-Tech")
+  measure.vector <- c("<div class=tooltiphelp> Number of VM in Tech <span class=tooltiptexthelp>Total number of tech workers in a geographic area who identifies with a visible minority group</span></div>",
+                      "<div class=tooltiphelp> Share of VM in Tech <span class=tooltiptexthelp>Share of tech workforce in a geographic area who identifies with a visible minority group </span> </div>",
+                      "<div class=tooltiphelp> VM participation in Tech <span class=tooltiptexthelp>Share of all visible minority workers in a geographic area who works in tech occupations</span></div>",
+                      "<div class=tooltiphelp> Average VM pay in Tech <span class=tooltiptexthelp>Mean pay for visible minority tech workers in a geographic area</span></div>",
+                      "<div class=tooltiphelp> Average VM pay in non-Tech <span class=tooltiptexthelp>Mean pay for visible minority tech workers in a geographic area</span></div>")
   city.vector <- c(comma(round(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,V1])),
                    str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,share.tech],2),"%"),
                    str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,prop.tech],2),"%"),
@@ -131,14 +133,16 @@ plot.vismin.paygap <- function(name_to_use){
                              str_c("$",scales::comma(pay.gap)))),
              width=0.6) +
     BF.Base.Theme +
-    scale_y_continuous(expand=c(0,0)) + 
-    scale_fill_manual(values=c("#82C458","#8AD4DF","#DD347A")) +
+    scale_y_continuous(expand=c(0,0),breaks = c(0,20000,40000,60000),labels=c("$0","$20,000","$40,000","$60,000")) + 
+    scale_fill_manual(values=c("#82C458","#072b49","#e24585")) +
     guides(fill="none",colour = "none") +
-    theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="white",angle=90)) +
-    labs(y="Visible Minority Pay Gap in Tech Occupations",x="Each bar is a Metropolitan Area.")
+    theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),color="#072b49")) +
+    labs(y="Each bar is a Metropolitan Area",x="",title="Visible Minority Pay Gap in Tech Occupations") +
+    coord_flip()
   print(config(layout(ggplotly(plot.vismin.pay,tooltip=c("text")),
                       xaxis = list(fixedrange=TRUE),
                       yaxis = list(fixedrange=TRUE),
+                      margin = list(l = 200,t=100),
                       showlegend = FALSE),
                displayModeBar=F))
   
@@ -147,14 +151,14 @@ plot.vismin.paygap <- function(name_to_use){
 
 #Draw table for comparing diversity & income numbers for CMAs
 draw.table.div <- function(comparison.cma.div){
-  topline.vars <- c("Overall Tech Worker Pay",
-                    "Overall Non-Tech Worker Pay",
-                    "Share of Tech Workers who are Female",
-                    "Share of Female who are Tech Workers",
-                    "Pay Difference by Sex",
-                    "Share of Tech Workers who are in a Visible Minority Group",
-                    "Share of Visible Minorities who are Tech Workers",
-                    "Pay Difference by Visible Minority Identities")
+  topline.vars <- c("<div class=tooltiphelp>Overall Tech worker pay <span class=tooltiptexthelp>Average pay for tech workers in a metropolitan area</span></div>",
+                    "<div class=tooltiphelp>Overall Non-Tech worker pay <span class=tooltiptexthelp>Average pay for non-tech workers in a metropolitan area</span></div>",
+                    "<div class=tooltiphelp>Share of women tech workers <span class=tooltiptexthelp>Share of all tech workers in a metropolitan area who identifies as female</span></div>",
+                    "<div class=tooltiphelp>Share of women who are Tech Workers <span class=tooltiptexthelp>Share of all female in a metropolitan area who works in tech occupations</span></div>",
+                    "<div class=tooltiphelp>Gender pay difference <span class=tooltiptexthelp>Difference between average tech occupation pay by gender in a metropolitan area</span></div>",
+                    "<div class=tooltiphelp>Share of Tech Workers who are in a VM Group <span class=tooltiptexthelp>Share of all tech workers in a metropolitan area with Visible Minority identities</span></div>",
+                    "<div class=tooltiphelp>Share of Visible Minorities who are Tech Workers<span class=tooltiptexthelp>Share of all visible minorities in a metropolitan area who works in tech occupations</span></div>",
+                    "<div class=tooltiphelp>Pay Difference by Visible Minority Identities<span class=tooltiptexthelp>Difference between average tech occupation pay between non-visible minorities and visible minorities in a metropolitan area</span></div>")
   final.table.div <- data.table(first.col = topline.vars)
   names(final.table.div) <- c("Metrics")
   if(length(comparison.cma.div)>0){

@@ -9,7 +9,39 @@ library(scales)
 #Function returns the first graph used in the dataviz - y-axis is share of tech workers for every single
 #CMA and CA in Canada
 plot.cmatot <- function(name_to_use){
-  if(!is.null(name_to_use)){
+  if(is.null(name_to_use)){
+    noc.dem.tech.map[,cma.focus:="0"]
+    noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% "Arnprior",ID],cma.focus:="1"]
+    column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
+      geom_col(aes(text=paste(GEO.NAME,
+                              "<br>",
+                              "Concentration of Tech Workers:",
+                              str_c(signif(pct,2),"%"))),
+               width=0.6) + 
+      BF.Base.Theme + 
+      scale_y_continuous(expand=c(0,0),breaks = c(0,2.5,5,7.5,10),labels = c("0%","2.5%","5%","7.5%","10%"),limits = c(0,12)) + 
+      theme(axis.text.x = element_blank(),
+            axis.title.x = element_text(size=9, color="#072b49"),
+            axis.title.y = element_text(size=9, color="#072b49"),
+            axis.ticks.x = element_blank(),
+            axis.text.y = element_text(size=9, margin=ggplot2::margin(r=2),color="#072b49"),
+            axis.line = ggplot2::element_line(size=0.25, colour = "#072b49"),
+            legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#072b49"),
+            axis.ticks = ggplot2::element_line(size=0.15,colour = "#072b49")) +
+      scale_fill_manual(values = c("#072b49","#e24585")) +
+      guides(fill="none",colour = "none") +
+      labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city")
+    graph <- config(layout(ggplotly(column.pct,tooltip=c("text"),showlegend=FALSE,showscale=FALSE),
+                           legend = list(orientation = 'h'),
+                           xaxis=list(fixedrange=TRUE), 
+                           yaxis=list(fixedrange=TRUE)),
+                    displayModeBar=F)
+
+    graph$x$data[[1]]$name <- "Other Cities/Towns"
+    graph$x$data[[2]]$name <- "Arnprior"
+    graph
+  }
+  else{
     noc.dem.tech.map[,cma.focus:="0"]
     noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% name_to_use,ID],cma.focus:="1"]
     column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
@@ -19,23 +51,51 @@ plot.cmatot <- function(name_to_use){
                               str_c(signif(pct,2),"%"))),
                width=0.6) + 
       BF.Base.Theme + 
-      scale_y_continuous(expand=c(0,0),breaks = c(0,2.5,5,7.5,10),labels = c("0%","2.5%","5%","7.5%","10%")) + 
+      scale_y_continuous(expand=c(0,0),
+                         breaks = c(0,2.5,5,7.5,10),
+                         labels = c("0%","2.5%","5%","7.5%","10%"),
+                         limits = c(0,12)) + 
       theme(axis.text.x = element_blank(),
-            axis.title.x = element_text(size=9, color="#14365D"),
-            axis.title.y = element_text(size=9, color="#14365D"),
+            axis.title.x = element_text(size=9, color="#072b49"),
+            axis.title.y = element_text(size=9, color="#072b49"),
             axis.ticks.x = element_blank(),
-            axis.text.y = element_text(size=9, margin=ggplot2::margin(r=2),color="#14365D"),
-            axis.line = ggplot2::element_line(size=0.25, colour = "#14365D"),
-            legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#14365D"),
-            axis.ticks = ggplot2::element_line(size=0.15,colour = "#14365D")) +
-      scale_fill_manual(values = c("#14365D","#DD347A")) +
+            axis.text.y = element_text(size=9, margin=ggplot2::margin(r=2),color="#072b49"),
+            axis.line = ggplot2::element_line(size=0.25, colour = "#072b49"),
+            legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#072b49"),
+            axis.ticks = ggplot2::element_line(size=0.15,colour = "#072b49")) +
+      scale_fill_manual(values = c("#072b49","#e24585")) +
       guides(fill="none",colour = "none") +
-      labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city")
+      labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city") +
+      annotate("segment",
+               y = noc.dem.tech.map[cma.focus=="1" & tech==1,pct]+0.02,
+               x = noc.dem.tech.map[cma.focus=="1" & tech==1,rownum],
+               xend = noc.dem.tech.map[cma.focus=="1" & tech==1,rownum],
+               yend = floor(noc.dem.tech.map[cma.focus=="1" & tech==1,pct])+2,
+               linetype = "dotted",
+               colour = "#e24585") +
+      annotate("text",
+               x = noc.dem.tech.map[cma.focus=="1" & tech==1,rownum],
+               y = floor(noc.dem.tech.map[cma.focus=="1" & tech==1,pct])+2,
+               colour = "#072b49",
+               label = noc.dem.tech.map[cma.focus=="1" & tech==1,GEO.NAME],
+               hjust = 0,
+               size = 15*0.352777778)
     graph <- config(layout(ggplotly(column.pct,tooltip=c("text"),showlegend=FALSE,showscale=FALSE),
                            legend = list(orientation = 'h'),
                            xaxis=list(fixedrange=TRUE), 
                            yaxis=list(fixedrange=TRUE)),
                     displayModeBar=F)
+    graph$x$data[[4]]$hoverinfo <- "none"
+    graph$x$data[[3]]$hoverinfo <- "none"
+    if(noc.dem.tech.map[cma.focus=="1" & tech==1, rownum]<50){
+      graph$x$data[[4]]$textposition <- "top right"
+    }
+    else if(noc.dem.tech.map[cma.focus=="1" & tech==1,rownum]>=100){
+      graph$x$data[[4]]$textposition <- "top left"
+    }
+    else{
+      graph$x$data[[4]]$textposition <- "top center"
+    }
     graph$x$data[[1]]$name <- "Other Cities/Towns"
     graph$x$data[[2]]$name <- name_to_use
     graph
@@ -50,41 +110,44 @@ plot.cmaocc <- function(name_to_use, pct_or_tot){
       noc.dem.city.plot <- noc.dem.city.plot[(.N-9):.N]
     }
     if(pct_or_tot=="Total Tech Workers"){
-      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,TOT),TOT),fill="#8AD4DF") +
+      max.plot <- max(noc.dem.city.plot[,TOT])
+      min.plot <- 0
+      ticks <- set.ticks.seq(max.plot,min.plot,unit="")
+      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,TOT),TOT),fill="#e24585") +
         geom_col(aes(text=paste(reorder(NOC,TOT),
                                 "<br>",
                                 "Total Employed:",
                                 scales::comma(sort(TOT)))),
-                 fill="#8AD4DF",
+                 fill="#9cdae7",
                  width=0.6) +
         BF.Base.Theme + 
-        scale_y_continuous(expand=c(0,0)) + 
+        scale_y_continuous(expand=c(0,0),breaks = ticks$breaks, label = ticks$labels) + 
         guides(fill="none",colour = "none") +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
         labs(y="Total Employment",x="Hover over each bar to learn about an occupation.")
-      print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
-                          xaxis = list(fixedrange=TRUE),
-                          yaxis = list(fixedrange=TRUE)),
-                   displayModeBar=F))
     }
     else{
-      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,pct),pct),fill="#8AD4DF") +
+      max.plot <- max(noc.dem.city.plot[,pct])
+      min.plot <- 0
+      ticks <- set.ticks.seq(max.plot,min.plot,unit="%")
+      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,pct),pct),fill="#e24585") +
         geom_col(aes(text=paste(reorder(NOC,TOT),
                                 "<br>",
                                 "Share of Tech Workforce:",
                                 str_c(round(sort(pct),2),"%"))),
-                 fill="#8AD4DF",
+                 fill="#9cdae7",
                  width=0.6) +
         BF.Base.Theme + 
-        scale_y_continuous(expand=c(0,0)) + 
+        scale_y_continuous(expand=c(0,0),breaks = ticks$breaks, labels = ticks$labels) + 
         guides(fill="none",colour = "none") +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
         labs(y="Share of Local Tech Workforce",x="Hover over each bar to learn about an occupation")
-      print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
-                          xaxis = list(fixedrange=TRUE),
-                          yaxis = list(fixedrange=TRUE)),
-                   displayModeBar=F))
     }
+    print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
+                        xaxis = list(fixedrange=TRUE),
+                        yaxis = list(fixedrange=TRUE),
+                        margin = list(l = 100, b = 100)),
+                 displayModeBar=F))
     
 }
 
@@ -92,42 +155,44 @@ plot.cmaocc <- function(name_to_use, pct_or_tot){
 plot.canocc <- function(pct_or_tot){
   noc.dem.canada.plot <- noc.dem.canada[(.N-9):.N]
   if(pct_or_tot == "Total Tech Workers"){
-    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,TOT),TOT),fill="#8AD4DF") +
+    max.plot <- max(noc.dem.canada.plot[,TOT])
+    min.plot <- 0
+    ticks <- set.ticks.seq(max.plot,min.plot,unit="")
+    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,TOT),TOT),fill="#e24585") +
       geom_col(aes(text=paste(reorder(NOC,TOT),
                               "<br>",
                               "Total Employed:",
                               scales::comma(sort(TOT)))),
-               fill="#8AD4DF",
+               fill="#9cdae7",
                width=0.6) +
       BF.Base.Theme + 
-      scale_y_continuous(expand=c(0,0)) + 
+      scale_y_continuous(expand=c(0,0), breaks = ticks$breaks, labels = ticks$labels) + 
       guides(fill="none",colour = "none") +
       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
       labs(y="",x="")
-    print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
-                        xaxis = list(fixedrange=TRUE),
-                        yaxis = list(fixedrange=TRUE)),
-                 displayModeBar=F))
   }
   else{
-    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,pct),pct),fill="#8AD4DF") +
+    max.plot <- max(noc.dem.canada[,pct])
+    min.plot <- 0
+    ticks <- set.ticks.seq(max.plot,min.plot,unit="%")
+    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,pct),pct),fill="#e24585") +
       geom_col(aes(text=paste(reorder(NOC,TOT),
                               "<br>",
                               "Share of Tech Workforce:",
                               str_c(round(sort(pct),2),"%"))),
-               fill="#8AD4DF",
+               fill="#9cdae7",
                width=0.6) +
       BF.Base.Theme + 
-      scale_y_continuous(expand=c(0,0)) + 
+      scale_y_continuous(expand=c(0,0), breaks = ticks$breaks, labels = ticks$labels) + 
       guides(fill="none",colour = "none") +
       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
       labs(y="",x="")
-    print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
-                        xaxis = list(fixedrange=TRUE),
-                        yaxis = list(fixedrange=TRUE)),
-                 displayModeBar=F))
   }
-  
+  print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
+                      xaxis = list(fixedrange=TRUE),
+                      yaxis = list(fixedrange=TRUE),
+                      margin = list(l = 100, b = 100)),
+               displayModeBar=F))
 }
 
 #Plot the line graph for educational attainment shares for each CMA/CA
@@ -138,31 +203,31 @@ plot.educ <- function(name_to_use){
   cma.ca.educ[ALT.GEO.CODE %in% cma.data[Name %in% name_to_use,ID],dum:=1]
   plot.educ.share <- ggplot(data=cma.ca.educ[dum==0],aes(EDUC15,pct)) +
     BF.Base.Theme +
-    theme(axis.text.x = element_text(size=9,colour="#14365D"),
-          axis.text.y = element_text(size=9,colour="#14365D"),
-          panel.grid.major.y = element_line(size=0.1,colour = "#14365D"),
-          axis.line = ggplot2::element_line(size=0.25, colour = "#14365D"),
-          axis.ticks = ggplot2::element_line(size=0.15,colour = "#14365D"),
-          axis.title.x = element_text(size=10,colour = "#14365D"),
+    theme(axis.text.x = element_text(size=9,colour="#072b49"),
+          axis.text.y = element_text(size=9,colour="#072b49"),
+          panel.grid.major.y = element_line(size=0.1,colour = "#072b49"),
+          axis.line = ggplot2::element_line(size=0.25, colour = "#072b49"),
+          axis.ticks = ggplot2::element_line(size=0.15,colour = "#072b49"),
+          axis.title.x = element_text(size=10,colour = "#072b49"),
           axis.title.y = element_blank()) +
-    geom_line(aes(group=GEO.NAME),color = "#14365D",alpha=0.3) +
+    geom_line(aes(group=GEO.NAME),color = "#072b49",alpha=0.3) +
     scale_y_continuous(breaks = c(0,25,50,75,100),
                        limits = c(0,100),
                        labels = c("0%","25%","50%","75%","100%")) +
     geom_point(data=cma.ca.educ[dum == 1],
                aes(EDUC15,pct, text = paste(GEO.NAME,"<br>","Share of Tech Workforce: ",round(pct),"%")),
-               color = "#DD347A",
+               color = "#e24585",
                size=2) +
     geom_line(data=cma.ca.educ[dum == 1],
               aes(EDUC15,pct,group = GEO.NAME),
-              color = "#DD347A",
+              color = "#e24585",
               size=1) +
-    labs(y = "Share of Tech Workers \n Each line represents a city/town") +
+    labs(y = "Share of Tech Workers \n Each line represents a city/town.") +
     coord_flip()
   plotly.plot.educ.share <- config(layout(ggplotly(plot.educ.share,tooltip=c("text")),
                                           xaxis = list(fixedrange=TRUE),
                                           yaxis = list(fixedrange=TRUE),
-                                          margin = list(l=200)),
+                                          margin = list(l=200, b=100)),
                                    displayModeBar=F)
   
   plotly.plot.educ.share$x$data[[1]]$hoverinfo <- "skip"
@@ -171,10 +236,10 @@ plot.educ <- function(name_to_use){
 
 #Draw the first comparison table between cities
 draw.table.topline <- function(comparison.cma){
-  topline.vars <- c("Number of Tech Workers",
-                    "Concentration of Tech Workers",
-                    "Number of Tech Workers in 2006",
-                    "Share of Tech Workers with Bachelors Degree or higher")
+  topline.vars <- c("<div class=tooltiphelp> Number of tech workers<span class=tooltiptexthelp> Total number of workers in tech occupations in a geographic area</span> </div>",
+                    "<div class=tooltiphelp>Concentration of Tech Workers<span class=tooltiptexthelp>Share of all workers in a geographic region who are tech workers </span> </div>",
+                    "<div class=tooltiphelp>Number of Tech Workers in 2006<span class=tooltiptexthelp> Total number of workers in tech occupations in a geographic area in 2006 </span></div>",
+                    "<div class=tooltiphelp>Share of Tech Workers with Bachelors Degree or higher<span class=tooltiptexthelp> Share of tech workers with a Bachelors degree or above as their highest degree </span> </div>")
   final.table <- data.table(first.col = topline.vars)
   names(final.table) <- c("Metrics")
   if(length(comparison.cma)>0){
