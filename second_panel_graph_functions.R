@@ -31,8 +31,8 @@ plot.scatter.income <- function(name_to_use){
           axis.ticks.y = element_line(size = 0.25, colour = "#072b49"),
           legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#072b49")) +
     scale_colour_manual(values=c("#072b49","#9cdae7","#e24585")) +
-    scale_y_continuous(breaks = c(60000,75000,90000,105000),labels = c("$60,000","$75,000","$90,000","$105,000")) +
-    scale_x_continuous(breaks = c(40000,50000,60000,70000),labels = c("$40,000","$50,000","$60,000","$70,000")) +
+    scale_y_continuous(breaks = c(25000,50000,75000,100000,125000),labels = c("$25,000","$50,000","$75,000","$100,000","$125,000"),limits = c(25000,140000),expand=c(0,0)) +
+    scale_x_continuous(breaks = c(25000,37500,50000,62500),labels = c("$25,000","$37,500","$50,000","$62,500"),limits = c(25000,70000),expand=c(0,0)) +
     labs(y="Average Pay in Tech Occupations",x="Average Pay in Non-Tech Occupations")
   graph <- config(layout(ggplotly(scatter.tech.plot,tooltip=c("text")),
                          legend = list(orientation = 'h'),
@@ -96,6 +96,33 @@ draw.gender.table <- function(name_to_use){
   table.to.display
 }
 
+
+#Draw table that compares participation stats for male and female
+draw.male.female.comp.table <- function(name_to_use){
+  measure.vector <- c("<div class=tooltiphelp>Number of people in Tech <span class=tooltiptexthelp>Total number of tech workers in a geographic area who identifies as male or female</span></div>",
+                      "<div class=tooltiphelp>Share of people in Tech <span class=tooltiptexthelp>Share of tech workforce in a geographic area who identifies as male or female</span> </div>",
+                      "<div class=tooltiphelp>Participation in Tech <span class=tooltiptexthelp>Share of all workers in a geographic area who works in tech occupations that is either male or female</span></div>",
+                      "<div class=tooltiphelp>Average pay in Tech<span class=tooltiptexthelp>Average pay workers in tech jobs received</span></div>",
+                      "<div class=tooltiphelp>Average pay in non-Tech<span class=tooltiptexthelp>Average pay workers in non-tech jobs received.</span></div>")
+  female.vector <- c(comma(round(tech_gender[GEO.NAME %in% name_to_use,V1])),
+                     str_c(signif(tech_gender[GEO.NAME %in% name_to_use,share_tech],2),"%"),
+                     str_c(signif(tech_gender[GEO.NAME %in% name_to_use,prop.tech],2),"%"),
+                     str_c("$",comma(signif(tech_gender[GEO.NAME %in% name_to_use,V2],3))),
+                     str_c("$",comma(signif(tech_gender[GEO.NAME %in% name_to_use, non.tech.pay],3)))
+                     )
+
+  male.vector <- c(comma(round(tech_gender[GEO.NAME %in% name_to_use,i.V1])),
+                   str_c(signif(tech_gender[GEO.NAME %in% name_to_use,share.male],2),"%"),
+                   str_c(signif(tech_gender[GEO.NAME %in% name_to_use,male.prop.tech],2),"%"),
+                   str_c("$",comma(signif(tech_gender[GEO.NAME %in% name_to_use, male.tech.pay],3))),
+                   str_c("$",comma(signif(tech_gender[GEO.NAME %in% name_to_use,male.non.tech.pay],3)))
+                   )
+  table.to.display <- data.table("Measure"=measure.vector,"Female"=female.vector,"Male"=male.vector)
+  names(table.to.display) <- c(name_to_use, "Female","Male")
+  table.to.display
+                                                     
+}
+
 #Draw table that compares Visible Minority numbers for chosen CMA with Canada
 draw.vismin.table <- function(name_to_use){
   measure.vector <- c("<div class=tooltiphelp> Number of VM in Tech <span class=tooltiptexthelp>Total number of tech workers in a geographic area who identifies with a visible minority group</span></div>",
@@ -117,6 +144,23 @@ draw.vismin.table <- function(name_to_use){
   
   table.to.display <- data.table("Measure"=measure.vector,"City"=city.vector,"Canada"=can.vector)
   names(table.to.display) <- c("Measure",stringr::str_wrap(name_to_use,15),"Canada")
+  table.to.display
+}
+
+draw.comp.vismin.table <- function(name_to_use){
+  measure.vector <- c("<div class=tooltiphelp> Number in Tech <span class=tooltiptexthelp>Total number of tech workers in a geographic area</span></div>",
+                      "<div class=tooltiphelp> Share in Tech <span class=tooltiptexthelp>Share of tech workforce in a geographic area </span> </div>",
+                      "<div class=tooltiphelp> Participation in Tech <span class=tooltiptexthelp>Share that works in a geographic area who works in tech occupations</span></div>")
+  vm.vector <- c(comma(round(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,V1])),
+                   str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,share.tech],2),"%"),
+                   str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,prop.tech],2),"%"))
+  
+  non.vm.vector <- c(comma(round(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,V1])),
+                  str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,share.tech],2),"%"),
+                  str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,prop.tech],2),"%"))
+  
+  table.to.display <- data.table("Measure"=measure.vector,"Visible Minority"=vm.vector,"Not a Visible Minority"=non.vm.vector)
+  names(table.to.display) <- c(name_to_use,"Visible Minority","Not a Visible Minority")
   table.to.display
 }
 

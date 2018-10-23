@@ -76,7 +76,7 @@ plot.cmatot <- function(name_to_use){
       annotate("text",
                x = noc.dem.tech.map[cma.focus=="1" & tech==1,rownum],
                y = floor(noc.dem.tech.map[cma.focus=="1" & tech==1,pct])+2,
-               colour = "#072b49",
+               colour = "#e24585",
                label = noc.dem.tech.map[cma.focus=="1" & tech==1,GEO.NAME],
                hjust = 0,
                size = 15*0.352777778)
@@ -106,6 +106,9 @@ plot.cmatot <- function(name_to_use){
 #x axis is top 10 occupations in that city
 plot.cmaocc <- function(name_to_use, pct_or_tot){
     noc.dem.city.plot <- noc.dem.city[ALT.GEO.CODE %in% cma.data[Name %in% name_to_use,ID]]
+    noc.dem.canada.plot <- noc.dem.canada[(.N-9):.N]
+    noc.dem.city.plot[,cat:="Top 10 Occupations Locally"]
+    noc.dem.city.plot[NOC %in% noc.dem.canada.plot[,NOC],cat:="Top 10 Occupations Canada-wide"]
     if(nrow(noc.dem.city.plot)>10){
       noc.dem.city.plot <- noc.dem.city.plot[(.N-9):.N]
     }
@@ -113,15 +116,15 @@ plot.cmaocc <- function(name_to_use, pct_or_tot){
       max.plot <- max(noc.dem.city.plot[,TOT])
       min.plot <- 0
       ticks <- set.ticks.seq(max.plot,min.plot,unit="")
-      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,TOT),TOT),fill="#e24585") +
+      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,TOT),TOT)) +
         geom_col(aes(text=paste(reorder(NOC,TOT),
                                 "<br>",
                                 "Total Employed:",
-                                scales::comma(sort(TOT)))),
-                 fill="#9cdae7",
+                                scales::comma(sort(TOT))),fill=cat),
                  width=0.6) +
         BF.Base.Theme + 
         scale_y_continuous(expand=c(0,0),breaks = ticks$breaks, label = ticks$labels) + 
+        scale_fill_manual(values = set.colours(2, categorical.choice = c("dark.blue","pink"))) +
         guides(fill="none",colour = "none") +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
         labs(y="Total Employment",x="Hover over each bar to learn about an occupation.")
@@ -130,23 +133,28 @@ plot.cmaocc <- function(name_to_use, pct_or_tot){
       max.plot <- max(noc.dem.city.plot[,pct])
       min.plot <- 0
       ticks <- set.ticks.seq(max.plot,min.plot,unit="%")
-      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,pct),pct),fill="#e24585") +
+      plot_pct_or_tot <- ggplot(data=noc.dem.city.plot,aes(reorder(NOC,pct),pct)) +
         geom_col(aes(text=paste(reorder(NOC,TOT),
                                 "<br>",
                                 "Share of Tech Workforce:",
-                                str_c(round(sort(pct),2),"%"))),
-                 fill="#9cdae7",
+                                str_c(round(sort(pct),2),"%")),
+                     fill=cat),
                  width=0.6) +
         BF.Base.Theme + 
         scale_y_continuous(expand=c(0,0),breaks = ticks$breaks, labels = ticks$labels) + 
+        scale_fill_manual(values = set.colours(2, categorical.choice = c("dark.blue","pink"))) +
         guides(fill="none",colour = "none") +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
         labs(y="Share of Local Tech Workforce",x="Hover over each bar to learn about an occupation")
     }
+    if(nrow(noc.dem.city.plot[cat=="Top 10 Occupations Locally"])==0){
+      plot_pct_or_tot <- plot_pct_or_tot + scale_fill_manual(values=set.colours(1, categorical.choice = c("dark.blue")))
+    }
     print(config(layout(ggplotly(plot_pct_or_tot,tooltip=c("text")),
                         xaxis = list(fixedrange=TRUE),
                         yaxis = list(fixedrange=TRUE),
-                        margin = list(l = 100, b = 100)),
+                        margin = list(l = 100, b = 100),
+                        legend = list(x=0.05,y=0.95)),
                  displayModeBar=F))
     
 }
@@ -158,12 +166,12 @@ plot.canocc <- function(pct_or_tot){
     max.plot <- max(noc.dem.canada.plot[,TOT])
     min.plot <- 0
     ticks <- set.ticks.seq(max.plot,min.plot,unit="")
-    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,TOT),TOT),fill="#e24585") +
+    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,TOT),TOT)) +
       geom_col(aes(text=paste(reorder(NOC,TOT),
                               "<br>",
                               "Total Employed:",
                               scales::comma(sort(TOT)))),
-               fill="#9cdae7",
+               fill="#072b49",
                width=0.6) +
       BF.Base.Theme + 
       scale_y_continuous(expand=c(0,0), breaks = ticks$breaks, labels = ticks$labels) + 
@@ -175,12 +183,12 @@ plot.canocc <- function(pct_or_tot){
     max.plot <- max(noc.dem.canada[,pct])
     min.plot <- 0
     ticks <- set.ticks.seq(max.plot,min.plot,unit="%")
-    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,pct),pct),fill="#e24585") +
+    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,pct),pct)) +
       geom_col(aes(text=paste(reorder(NOC,TOT),
                               "<br>",
                               "Share of Tech Workforce:",
                               str_c(round(sort(pct),2),"%"))),
-               fill="#9cdae7",
+               fill="#072b49",
                width=0.6) +
       BF.Base.Theme + 
       scale_y_continuous(expand=c(0,0), breaks = ticks$breaks, labels = ticks$labels) + 
@@ -214,6 +222,15 @@ plot.educ <- function(name_to_use){
     scale_y_continuous(breaks = c(0,25,50,75,100),
                        limits = c(0,100),
                        labels = c("0%","25%","50%","75%","100%")) +
+    scale_x_discrete(expand = c(0.03,0)) +
+    geom_point(data=can.educ.sum.narrow,
+               aes(EDUC15,pct,text = paste("Canada <br> Share of Tech Workforce: ",round(pct),"%")),
+               color = "#82C458",
+               size=2) +
+    geom_line(data=can.educ.sum.narrow,
+              aes(EDUC15,pct, group=GEO.NAME),
+              color = "#82C458",
+              size=1) +
     geom_point(data=cma.ca.educ[dum == 1],
                aes(EDUC15,pct, text = paste(GEO.NAME,"<br>","Share of Tech Workforce: ",round(pct),"%")),
                color = "#e24585",
@@ -222,7 +239,7 @@ plot.educ <- function(name_to_use){
               aes(EDUC15,pct,group = GEO.NAME),
               color = "#e24585",
               size=1) +
-    labs(y = "Share of Tech Workers \n Each line represents a city/town.") +
+    labs(y = "Share of Tech Workers") +
     coord_flip()
   plotly.plot.educ.share <- config(layout(ggplotly(plot.educ.share,tooltip=c("text")),
                                           xaxis = list(fixedrange=TRUE),
