@@ -34,9 +34,9 @@ ui <- fluidPage(theme="style.css",
 
                          fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Key Statistics")),
                                   div(style="padding-top: 30px; padding-bottom: 30px",
-                                      p("Who are the faces behind Canada's tech sector? How many are there? Where do they work? 
-                                        Is there a diversity problem in tech? This data visualization, accompanying Brookfield Institute's 
-                                        first report in the 2018 State of Canada's Sector series, will answer these questions."))
+                                      p("Who works in Canada's tech jobs? How many workers are there in your city?
+                                        Is there a diversity problem in tech? This data visualization, accompanying the Brookfield Institute's 
+                                        first report in its",  a(href = "https://brookfieldinstitute.ca/", "2018 State of Canada's Sector"), "series, helps answer these questions."))
                                  ), #End FluidRow
                          fluidRow(align="center",
                                   selectInput("province",
@@ -102,7 +102,7 @@ ui <- fluidPage(theme="style.css",
                                                     p(style="font-size: 0.7em","These occupations are different from the top 10 tech occupations by employment nationally.")),
                                                 div(style="background: #072b49; padding-top: 15px; padding-bottom: 15px; color: #fff; padding-left: 10px; padding-right: 10px",
                                                     h4(style="font-size:14px","Top 10 Occupations Canada-wide"),
-                                                    p(style="font-size: 0.7em","These occupations are also represented in the top 10 tech occupations by employment nationally")))), #End Column
+                                                    p(style="font-size: 0.7em","These occupations are also represented in the top 10 tech occupations by employment nationally.")))), #End Column
                                 column(align = "center",
                                        p("Local Tech Talent"),
                                        plotlyOutput("cmatopocc",height="500px"),
@@ -149,10 +149,10 @@ ui <- fluidPage(theme="style.css",
                                       img(src="tech_image_2.png",style="width:100%; min-width:160px")),
                                column(width=8,
                                       htmlOutput("educ.text"),
-                                      p("In the [report](https://brookfieldinstitute.ca/), we dove into workers' postsecondary degree specialization.
+                                      p("In the", a(href="https://brookfieldinstitute.ca/", "report,"), "we dove into workers' postsecondary degree specialization.
                                         Though we do not present this data at the city/town level, tech workers came from a variety of backgrounds,
-                                        with a disproportionate share coming from traditional STEM programs such as Mathematics, Computer Science, and Physics. A sizeable share of the 
-                                        tech workforce specialized in Business, Commerce, and Management related fields."))
+                                        with a largest shares coming from traditional STEM programs such as Mathematics, Computer Science and Physics. A sizeable share of the 
+                                        tech workforce also specialized in Business, Commerce and Management related fields."))
                                ), #End FluidRow
                       
         #START SHOWING COMPARISON FROM HERE
@@ -163,7 +163,7 @@ ui <- fluidPage(theme="style.css",
                       
                       
                       fluidRow(p("Now that you have a bit of a better grasp of tech workers across the nation, 
-                                 use the tool below to compare key statistics for up to 5 cities and towns in Canada.")
+                                 use the tool below to compare key statistics for up to 5 cities and towns across Canada.")
                       ), #EndFluidRow
                 
                       fluidRow(align = "center",
@@ -190,8 +190,8 @@ ui <- fluidPage(theme="style.css",
               tabPanel("Income and Diversity (Metropolitan Areas)",
                        fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Income and Diversity")),
                                 div(style="padding-top: 30px; padding-bottom: 30px",
-                                  "Diversity has been a focal point of many conversations surrounding tech. Let's explore how different identities 
-                                  affect the experiences of working in a tech occupation for Canada's metropolitan areas.")
+                                  "Diversity is a focal point for many conversations in tech. Let's explore how different identities, like gender and race,  
+                                  affect participation and earnings in tech occupations.")
                                 ), #End FluidRow
                        
                        fluidRow(align = "center",
@@ -204,7 +204,7 @@ ui <- fluidPage(theme="style.css",
                                        plotlyOutput("tech.pre.scatter",height = "500px")),
                                 column(width = 5,
                                        p("Consistently, tech workers across Canada received higher average pay than non-tech workers.
-                                         This pay differential was present in all demographic and geographic groups."),
+                                         This pay premium was consistent across all demographic and geographic groups."),
                                        htmlOutput("tech.premium.text"))
                                 
                                 ), #EndFluidRow
@@ -262,7 +262,7 @@ ui <- fluidPage(theme="style.css",
     #VISIBLE MINORITY STARTS HERE
     
     fluidRow(class="sectiontitlewrapper",
-             h3("Visible Minority(VM)")
+             h3("Visible Minority (VM)")
     ), #End FluidRow
     
     
@@ -272,7 +272,7 @@ ui <- fluidPage(theme="style.css",
                     htmlOutput("vismin.comp.table",class = "inverse")),
              column(width=5,
                     p("Almost one-third of Canada's tech workers identify as visible minorities (31.9%).
-                                         8.5 percent or almost one in twelve visible minorities workers worked in a tech occupation, totalling 271,000 people"),
+                                         8.5 percent or almost one in twelve visible minority workers worked in a tech occupation, totalling 271,000 people."),
                     htmlOutput("vismin.sumtext", class="inverse"))
     ), #End FluidRow
     
@@ -317,7 +317,7 @@ ui <- fluidPage(theme="style.css",
              h3("Compare between metropolitan areas")
     ), #EndFluidRow
     
-    fluidRow(p("Now that you've gotten a better idea of diversity in tech, you may want to compare between
+    fluidRow(p("Now that you've gotten a better idea of the diversity among Canadian tech workers, you may want to compare between
                                   different metropolitan areas. Use our tool to compare the topline numbers for up to 5 metropolitan areas, 
                and download the result.")
     ), #EndFluidRow
@@ -349,12 +349,12 @@ ui <- fluidPage(theme="style.css",
   fluidRow(class="sectiontitlewrapper",
            h3("About this data visualization")),
   fluidRow(style="font-size:1.1em",p("This data visualization was created by the Brookfield Institute for Innovation and Entrepreneurship
-             to accompany the State of Canada's Tech Sector 2018: Tech Workers report. [See the source code](https://brookfieldinstitute.ca/)."),
+             to accompany the", a(href="https://brookfieldinstitute.ca/","State of Canada's Tech Sector 2018: Tech Workers report."), "See the",a(href="https://brookfieldinstitute.ca/", "source code on GitHub.")),
            p("The report was authored by Asher Zafar, Viet Vu, and Creig Lamb. The data visualization was developed by Viet Vu using R and Shiny."),
            p("This report, as well as the data visualization, would not have been possible without support from the following individuals:
              Sean Zohar, Jessica Thomson, Nisa Malli, Annalise Huynh, Andrew Do, Sarah Doyle, as well as our reviewers."),
            p("The main data source for the report and the visualization is the 2016 and 2006 Canadian long form census."),
-           p("Please send any feedback, comments, or questions to",a(href="mailto:brookfield.institute@ryerson.ca","brookfield.institute@ryerson.ca")),
+           p("Please send any feedback, comments, or questions to", a(href="mailto:brookfield.institute@ryerson.ca", "brookfield.institute@ryerson.ca")),
            
            div(style="margin-top:25px;border-top: 1px solid #e3e3e3",p(style="font-style: italic","For media enquiries, please contact", 
                  a(href="https://brookfieldinstitute.ca/team/coralie-dsouza","Coralie D’Souza"), 
@@ -394,7 +394,7 @@ server <- function(input, output) {
   
    #Text for focusing on a particular CMA
    output$CMA_chosen_2 <- renderText({
-    paste("Let's learn about ", input$cma,", ",input$province,"'s tech workers",sep="")})
+    paste("Let's learn about ", input$cma,", ",input$province,"'s tech workers.",sep="")})
 
    #Interactive column plot of all the cities with the chosen city highlighted
    output$cmatot <- renderPlotly({
@@ -423,7 +423,7 @@ server <- function(input, output) {
                                       over 180,000 workers joined the tech workforce in Canada and 180,000 more are predicted to 
                                       join in the next 10 years according to", 
                                       a(href="http://occupations.esdc.gc.ca/sppc-cops/w.2lc.4m.2@-eng.jsp",
-                                        "Economics and Social Development Canada"),
+                                        "Employment and Social Development Canada"),
                                       "."
                                        ))
                                       })
@@ -459,8 +459,8 @@ server <- function(input, output) {
                         ".",
                         sep="")
                   ),
-             " This means that the number of tech workers have decreased over the past 10 years",
-             paste("by ",abs(difference)," workers.",sep="")
+             " This means that the number of tech workers has decreased over the past 10 years",
+             paste("by ",comma(abs(difference))," workers.",sep="")
              )
          }
          else{
@@ -473,8 +473,8 @@ server <- function(input, output) {
                         sep=""
                         )
                   ),
-             " This means that the number of tech workers have increased over the past 10 years.",
-             paste("by ",abs(difference)," workers.",sep="")
+             " This means that the number of tech workers have increased over the past 10 years",
+             paste("by ",comma(abs(difference))," workers.",sep="")
              )         
          }
        }
@@ -489,7 +489,7 @@ server <- function(input, output) {
    output$educ.text <- renderUI({
      p("Tech Workers in Canada are highly educated. 
        In fact, almost 58% of tech workers hold a Bachelor's degree or above, 
-       compare to 26% of workers not in tech occupations.",
+       compared to 26% of workers not in tech occupations.",
        span(style="color: #e24585",paste("In ",input$cma,", ",
              round(cma.ca.educ[ALT.GEO.CODE %in% cma.data[Name %in% input$cma,ID] & EDUC15.ID==10,pct]),"%", sep = ""),
        " of tech workers held a Bachelor's degree or above."
@@ -526,13 +526,13 @@ server <- function(input, output) {
    
    #Tech premium text
    output$tech.premium.text <- renderUI({
-     p("In ",
-       span(style ="color: #e24585",
+     p(span(style ="color: #e24585",
+            "In ",
             paste(input$cma_div,",",sep=""),
             " tech workers were paid ",
-            paste("$",comma(signif(tech_premium[GEO.NAME==input$cma_div,tech.pay])),";",sep=""),
+            paste("$",comma(signif(tech_premium[GEO.NAME==input$cma_div,tech.pay])), sep=""),
             " on average, ",
-            paste("$",comma(signif(tech_premium[GEO.NAME==input$cma_div,tech.pay-non.tech.pay])),sep=""),
+            paste("$",comma(signif(tech_premium[GEO.NAME==input$cma_div,tech.pay-non.tech.pay])), sep=""),
             "more than non-tech workers."))
             
        
@@ -569,8 +569,8 @@ server <- function(input, output) {
    output$gen.gap.text <- renderUI({
      ratio <- round(tech_gender[GEO.NAME %in% input$cma_div, male.prop.tech/prop.tech],1)
      div(p("In",
-           paste(input$cma_div,sep=""),
-           "Men were",
+           paste(input$cma_div,",",sep=""),
+           "men were",
            span(style = "color: #e24585", 
                 paste(ratio, " times more likely",sep="")),
            " to work in a tech occupation,",
@@ -578,7 +578,7 @@ server <- function(input, output) {
          span(style = "color: #e24585",
               paste(round(tech_gender[GEO.NAME %in% input$cma_div,prop.tech],1),
                     "%",
-                    " of women")), " worked in tech occupations.",sep=""))
+                    " of women",sep = "")), " worked in tech occupations.",sep=""))
    })
    #Gender table in main text chosen CMA and Canada
    output$gen.comp.table <- renderTable(draw.gender.table(input$cma_div),sanitize.text.function = function(x) x)
