@@ -58,18 +58,17 @@ ui <- fluidPage(theme="style.css",
                                 style="padding-top: 40px",
                                 column(style="margin-right: 4%",
                                        width=7, 
-                                       p("one in twenty workers in Canada
-                                         work in one of 32 tech occupations that we identified, totaling almost",
-                                          span(style='color: #e24585',"1 million"),
-                                          " people. From engineers to programmers, these individuals support Canada's tech sector."), #End p
-                                       p("There are important differences though, depending on where in the country tech workers make their living.")
+                                       p("One in twenty workers in Canada
+                                         work in one of 32 tech occupations, from engineers to programmers, totaling almost",
+                                          span(style='color: #e24585',"1 million tech workers.")), #End p
+                                       p("Depending on where they live, tech workers have different jobs, earnings and backgrounds.")
                                        ), #End Column
                                 
                                 column(width=4,
                                        style = "background: #d1236c; color: #fff; margin-bottom: 20px; padding-top: 15px; padding-bottom: 15px",
                                        div(h4("Tech Occupation Definition"),
                                            p("We define tech occupations to be occupations that require high competency in tech skills. 
-                                              We use the National Occupational Classification (NOC) to define our occupations, and US's O*Net Skills taxonomy to look at each occupation's tech intensity."
+                                              We use the National Occupational Classification (NOC) to define our occupations, and US's O*NET Skills taxonomy to look at each occupation's tech intensity."
                                              ) #End p
                                            ) #End Div
                                        ) #End Column
@@ -85,7 +84,7 @@ ui <- fluidPage(theme="style.css",
             #START SHOWING TOPLINE NUMBERS FROM HERE
 
                        fluidRow(class="sectiontitlewrapper",
-                                h3("Tech Employment by Occupations")
+                                h3("Tech Employment by Occupation")
                                 ), #End FluidRow
                        
                        fluidRow(column(width=2,
@@ -150,7 +149,7 @@ ui <- fluidPage(theme="style.css",
                                       img(src="tech_image_2.png",style="width:100%; min-width:160px")),
                                column(width=8,
                                       htmlOutput("educ.text"),
-                                      p("In the main report, we also dived into workers' postsecondary degree specialization.
+                                      p("In the [report](https://brookfieldinstitute.ca/), we dove into workers' postsecondary degree specialization.
                                         Though we do not present this data at the city/town level, tech workers came from a variety of backgrounds,
                                         with a disproportionate share coming from traditional STEM programs such as Mathematics, Computer Science, and Physics. A sizeable share of the 
                                         tech workforce specialized in Business, Commerce, and Management related fields."))
@@ -350,7 +349,7 @@ ui <- fluidPage(theme="style.css",
   fluidRow(class="sectiontitlewrapper",
            h3("About this data visualization")),
   fluidRow(style="font-size:1.1em",p("This data visualization was created by the Brookfield Institute for Innovation and Entrepreneurship
-             to accompany the State of Canada's Tech Sector 2018: Tech Workers report."),
+             to accompany the State of Canada's Tech Sector 2018: Tech Workers report. [See the source code](https://brookfieldinstitute.ca/)."),
            p("The report was authored by Asher Zafar, Viet Vu, and Creig Lamb. The data visualization was developed by Viet Vu using R and Shiny."),
            p("This report, as well as the data visualization, would not have been possible without support from the following individuals:
              Sean Zohar, Jessica Thomson, Nisa Malli, Annalise Huynh, Andrew Do, Sarah Doyle, as well as our reviewers."),
@@ -395,7 +394,7 @@ server <- function(input, output) {
   
    #Text for focusing on a particular CMA
    output$CMA_chosen_2 <- renderText({
-    paste("Let's focus on ", input$cma,", ",input$province,"'s story.",sep="")})
+    paste("Let's learn about ", input$cma,", ",input$province,"'s tech workers",sep="")})
 
    #Interactive column plot of all the cities with the chosen city highlighted
    output$cmatot <- renderPlotly({
@@ -426,8 +425,7 @@ server <- function(input, output) {
                                       a(href="http://occupations.esdc.gc.ca/sppc-cops/w.2lc.4m.2@-eng.jsp",
                                         "Economics and Social Development Canada"),
                                       "."
-                                       ),
-                                      p("Let's look at",paste(input$cma,"'s",sep="")," tech workforce in 2006."))
+                                       ))
                                       })
 
    
