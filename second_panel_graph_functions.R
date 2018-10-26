@@ -150,10 +150,13 @@ draw.vismin.table <- function(name_to_use){
 draw.comp.vismin.table <- function(name_to_use){
   measure.vector <- c("<div class=tooltiphelp> Number in Tech <span class=tooltiptexthelp>Total number of tech workers in a geographic area</span></div>",
                       "<div class=tooltiphelp> Share in Tech <span class=tooltiptexthelp>Share of tech workforce in a geographic area </span> </div>",
-                      "<div class=tooltiphelp> Participation in Tech <span class=tooltiptexthelp>Share that works in a geographic area who works in tech occupations</span></div>")
+                      "<div class=tooltiphelp> Participation in Tech <span class=tooltiptexthelp>Share that works in a geographic area who works in tech occupations</span></div>",
+                      "<div class=tooltiphelp>Average pay in Tech<span class=tooltiptexthelp>Average pay workers in tech jobs received</span></div>",
+                      "<div class=tooltiphelp>Average pay in non-Tech<span class=tooltiptexthelp>Average pay workers in non-tech jobs received.</span></div>")
   vm.vector <- c(comma(round(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,V1])),
                    str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,share.tech],2),"%"),
-                   str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,prop.tech],2),"%"))
+                   str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,prop.tech],2),"%"),
+                 str_c("$",comma(signif(tech_vismin[VIS.MIN15.ID==2,V2]))))
   
   non.vm.vector <- c(comma(round(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,V1])),
                   str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,share.tech],2),"%"),
