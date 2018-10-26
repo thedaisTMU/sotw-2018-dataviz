@@ -216,6 +216,7 @@ ui <- fluidPage(theme="style.css",
                                     ), #End FluidRow
                                     
                                     fluidRow(column(width = 5,
+                                                    class = "column-border-right",
                                                     p("Labour force participation among",
                                                       span(class="tooltiphelp","women",span(class="tooltiptexthelp",
                                                                                             "In the 2016 Canadian Census, Statistics Canada only collected data pertaining to an individual's sex which may differ from one's gender. We ackowledge this issue but also believe that many insights pertaining for the female population is also relevant for women population in Canada.")
@@ -231,6 +232,7 @@ ui <- fluidPage(theme="style.css",
                                                     ), #EndFluidRow
                                     fluidRow(class="alignedrow",
                                              column(width=5,
+                                                    class="column-border-right",
                                                     tableOutput("gen.comp.mf.table")),
                                              column(width=7,
                                                     align = "left",
@@ -240,6 +242,7 @@ ui <- fluidPage(theme="style.css",
                                     
                                     fluidRow(class="alignedrow",
                                              column(width = 4,
+                                                    class = "column-border-right",
                                                     img(src="tech_pic_3.png", style="width:100%; min_width: 180px")),
                                              column(width = 8, 
                                                     p("When it comes to the gender pay gap in Tech,

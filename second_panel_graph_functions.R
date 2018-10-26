@@ -156,11 +156,14 @@ draw.comp.vismin.table <- function(name_to_use){
   vm.vector <- c(comma(round(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,V1])),
                    str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,share.tech],2),"%"),
                    str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 2,prop.tech],2),"%"),
-                 str_c("$",comma(signif(tech_vismin[VIS.MIN15.ID==2,V2]))))
+                 str_c("$",comma(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID==2,V2],3))),
+                 str_c("$",comma(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID ==2,non.tech.pay],3))))
   
   non.vm.vector <- c(comma(round(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,V1])),
                   str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,share.tech],2),"%"),
-                  str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,prop.tech],2),"%"))
+                  str_c(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,prop.tech],2),"%"),
+                  str_c("$",comma(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,V2],3))),
+                  str_c("$",comma(signif(tech_vismin[GEO.NAME %in% name_to_use & VIS.MIN15.ID == 15,non.tech.pay],3))))
   
   table.to.display <- data.table("Measure"=measure.vector,"Visible Minority"=vm.vector,"Not a Visible Minority"=non.vm.vector)
   names(table.to.display) <- c(name_to_use,"Visible Minority","Not a Visible Minority")
