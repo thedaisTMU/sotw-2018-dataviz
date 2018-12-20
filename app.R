@@ -15,7 +15,6 @@ source("second_panel_graph_functions.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme="style.css",
-                tags$head(tags$link(rel="shortcut icon", href="www/favicon.ico")),
                 
                 
                 
@@ -25,34 +24,60 @@ ui <- fluidPage(theme="style.css",
                     includeHTML("www/header.html")),
                 
                 
-                titlePanel("",windowTitle = "Brookfield Institute - State of Canada's Tech Workers 2018"), #Name to show up on browser. Favicon is set in css document
-                div(style = "margin-right: 10%; margin-left: 10%; padding-bottom: 15px", h1("State of Canada's Tech Sector, 2018")),
-                
+                titlePanel("",windowTitle = "Brookfield Institute - Canada's Tech Diary"), #Name to show up on browser. Favicon is set in css document
+                #div(style = "margin-right: 10%; margin-left: 10%; padding-bottom: 15px", h1("Canada's Tech Diary")),
+                div(class="filler"),
+                div(class="nonmobile",
+                    style="padding-left:10%; padding-right:10%;position:relative;",
+                    div(style="margin-left:auto;margin-right:auto;position:relative;display:block",
+                        p(style="margin-bottom:0px; font-size:25px; font-family:'rooneysansbold' !important; color: #d1236c; padding-right: 40px","Explore") #End p
+                        ) #End div
+                    ), #End div
+                div(class="nonmobile",
+                    style="padding-left:10%; padding-right:10%;position:relative;",
+                    img(style="margin-left:auto;margin-right:auto;position:relative;display:block; height:70px",
+                        src="Arrows.svg")),
                 
                 navbarPage("",
                            tabPanel("Key Statistics (Cities and Towns)",
                                     
                                     fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Key Statistics")),
                                              div(style="padding-top: 30px; padding-bottom: 30px",
-                                                 p("Who works in Canada's tech jobs? How many workers are there in your city?
-                                                   Is there a diversity problem in tech? This data visualization, accompanying the Brookfield Institute's 
-                                                   first report in our",  a(href = "https://brookfieldinstitute.ca/", "2018 State of Canada's Sector"), "series, helps answer these questions."))
+                                                 p("Who are the people that make up Canada’s tech industries? How many are there? Where do they work? What cities can you find them in? How educated are they?"),
+                                                 p("Journey through our latest insights on how tech talent is shaping up across Canada and find our more about how your city stacks up to different cities and regions across the nation. Or,
+                                                   if you'd like,",a("jump",href="#generalcomparison")," to the end to compare between different cities and towns."))
                                                  ), #End FluidRow
+                                    div(class="filler_sel_1"), #Filler for the navbar
                                     fluidRow(align="center",
-                                             selectInput("province",
-                                                         "List the cities and towns in the Province/Territory of ",
-                                                         choices = c("British Columbia"="BC","Alberta"="AB","Saskachewan"="SK","Manitoba"="MB",
-                                                                     "Ontario"="ON","Quebec"="QC","New Brunswick"="NB","Prince Edward Islands"="PE",
-                                                                     "Nova Scotia"="NS","Newfoundland and Labrador"="NL","Northwest Territories"="NT"),selected="ON"),
-                                             div(style="display: inline-block;vertical-align:middle; height:34px",
-                                                 p("Tell me more about tech jobs in ")),
-                                             div(style="display: inline-block;vertical-align:middle; horizontal-align:left; height: 34px",
-                                                 uiOutput("CMA_choice"))
+                                             class="selectize-city",
+                                             div(div(style="display: inline-block;vertical-align:middle; height:34px",
+                                                     p("Of the city/town in the province/territory of")),
+                                                 div(style="display: inline-block; height: 34px",
+                                                     selectInput("province",
+                                                                 label = "",
+                                                                 choices = c("British Columbia"="BC",
+                                                                             "Alberta"="AB",
+                                                                             "Saskatchewan"="SK",
+                                                                             "Manitoba"="MB",
+                                                                             "Ontario"="ON",
+                                                                             "Quebec"="QC",
+                                                                             "New Brunswick"="NB",
+                                                                             "Prince Edward Islands"="PE",
+                                                                             "Nova Scotia"="NS",
+                                                                             "Newfoundland and Labrador"="NL",
+                                                                             "Northwest Territories"="NT"),
+                                                                 selected="ON"))),
+                                             div(div(style="display: inline-block;vertical-align:middle; height:34px",
+                                                     p("Tell me more about tech jobs in ")),
+                                                 div(style="display: inline-block;vertical-align:middle; height: 34px",
+                                                     uiOutput("CMA_choice")))
+                                             
                                     ), #EndFluidRow
                                     
                                     fluidRow(align = "center",
                                              plotlyOutput("cmatot",height="600px")
                                     ), #EndFluidRow
+                                    
                                     
                                     fluidRow(class="alignedrow",
                                              style="padding-top: 40px",
@@ -65,10 +90,14 @@ ui <- fluidPage(theme="style.css",
                                              ), #End Column
                                              
                                              column(width=4,
-                                                    style = "background: #d1236c; color: #fff; margin-bottom: 20px; padding-top: 15px; padding-bottom: 15px",
-                                                    div(h4("Tech Occupation Definition"),
-                                                        p("We define tech occupations to be occupations that require high competency in tech skills. 
-                                                          We use the National Occupational Classification (NOC) to define our occupations, and US's O*NET Skills taxonomy to look at each occupation's tech intensity."
+                                                    class="popupbox",
+                                                    div(h4("What's a tech worker!?"),
+                                                        p("In our report, we define tech occupations to be occupations that require high competency in tech skills. 
+                                                          We use the", 
+                                                          a(href="http://noc.esdc.gc.ca/English/noc/welcome.aspx?ver=16","National Occupational Classification (NOC)"), 
+                                                          "to define our occupations, and US's" ,
+                                                          a(href="https://www.onetonline.org/","O*NET Skills"), 
+                                                          "taxonomy to look at each occupation's tech intensity."
                                                         ) #End p
                                                         ) #End Div
                                                     ) #End Column
@@ -92,8 +121,8 @@ ui <- fluidPage(theme="style.css",
                                                     radioButtons("pct_or_tot",
                                                                  choiceValues = c("Total Tech Workers",
                                                                                   "Concentration of Tech Workers"),
-                                                                 choiceNames = list(HTML('<i class="fa fa-circle-o social-icons" style = "font-size:1.1em"></i><i class="fa fa-dot-circle-o" style = "font-size:1.1em"></i> <div class=tooltiphelp style="border-bottom: none"><p style="padding-left:10px; font-size: 14px">Total Tech Workers</p><span class=tooltiptexthelp>Share of all workers in a geographic region who are tech workers</span></div>'),
-                                                                                    HTML('<i class="fa fa-circle-o social-icons" style="font-size:1.1em"></i><i class="fa fa-dot-circle-o" style = "font-size:1.1em"></i> <div class=tooltiphelp style="border-bottom: none"><p style="padding-left:10px; font-size: 14px">Concentration of Tech Workers</p><span class=tooltiptexthelp> Total number of workers in tech occupations in a geographic area</span></div>')),
+                                                                 choiceNames = list(HTML('<i class="fa fa-circle-o social-icons" style = "font-size:1.1em"></i><i class="fa fa-dot-circle-o" style = "font-size:1.1em"></i> <div class=tooltiphelp style="border-bottom: none"><p style="padding-left:10px; font-size: 14px">Total Tech Workers</p><span class=tooltiptexthelp>Total number of workers in tech occupations in a geographic area</span></div>'),
+                                                                                    HTML('<i class="fa fa-circle-o social-icons" style="font-size:1.1em"></i><i class="fa fa-dot-circle-o" style = "font-size:1.1em"></i> <div class=tooltiphelp style="border-bottom: none"><p style="padding-left:10px; font-size: 14px">Concentration of Tech Workers</p><span class=tooltiptexthelp>Share of all workers in a geographic region who are tech workers</span></div>')),
                                                                  selected = "Total Tech Workers",
                                                                  label="Show me"),
                                                     fluidRow(style = "margin-left:inherit; margin-right:inherit;padding-left:0; padding-right:0",
@@ -104,7 +133,7 @@ ui <- fluidPage(theme="style.css",
                                                                  h4(style="font-size:14px","Top 10 Occupations Canada-wide"),
                                                                  p(style="font-size: 0.7em","These occupations are also represented in the top 10 tech occupations by employment nationally.")))), #End Column
                                              column(align = "center",
-                                                    p("Local Tech Talent"),
+                                                    textOutput("CMA_chosen_3"),
                                                     plotlyOutput("cmatopocc",height="500px"),
                                                     width=5), #End Column
                                              
@@ -118,7 +147,7 @@ ui <- fluidPage(theme="style.css",
                                     fluidRow(class="alignedrow",
                                              column(width=9,htmlOutput("cmatotnumtext"),
                                                     htmlOutput("cmain2006")),
-                                             column(width=3,img(src="test_image_1.png",style="width:100%; min-width:160px"))
+                                             column(width=3,img(src="tech_pic_1.png",style="width:100%; min-width:160px"))
                                     ), #EndFluidRow
                                     
                                     #START SHOWING EDUCATION STUFF FROM HERE
@@ -145,8 +174,8 @@ ui <- fluidPage(theme="style.css",
                                     ), #EndFluidRow
                                     
                                     fluidRow(class="alignedrow",
-                                             column(width=3,
-                                                    img(src="tech_image_2.png",style="width:100%; min-width:160px")),
+                                             column(width=4,
+                                                    img(src="tech_pic_2.png",style="width:100%; min-width:160px")),
                                              column(width=8,
                                                     htmlOutput("educ.text"),
                                                     p("In the", a(href="https://brookfieldinstitute.ca/", "report,"), "we dove into workers' postsecondary degree specialization.
@@ -157,10 +186,10 @@ ui <- fluidPage(theme="style.css",
                                     
                                     #START SHOWING COMPARISON FROM HERE
                                     
-                                    fluidRow(class="sectiontitlewrapper",
-                                             h3("Compare between cities/towns")
+                                    fluidRow(class="sectiontitlewrapper finalsection",
+                                             h3("Compare Between Cities/Towns")
                                     ), #EndFluidRow
-                                    
+                                    a(id="generalcomparison"),
                                     
                                     fluidRow(p("Now that you have a bit of a better grasp of tech workers across the nation, 
                                                use the tool below to compare key statistics for up to 5 cities and towns across Canada.")
@@ -186,15 +215,23 @@ ui <- fluidPage(theme="style.css",
                                     
                                     
                                     ),#End first tab panel
+                           
+                           
+                           
+                           
+                           
+                           
+                           
                            #SECOND TAB PANEL
                            tabPanel("Income and Diversity (Metropolitan Areas)",
                                     fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Income and Diversity")),
                                              div(style="padding-top: 30px; padding-bottom: 30px",
-                                                 "Diversity is a focal point for many conversations in tech. Let's explore how different identities, like gender and visible minority identities,  
-                                                 affect participation and earnings in tech occupations.")
+                                                 p("Diversity is a focal point for many conversations in tech. Let's explore how different identities, like gender and visible minority identities,  
+                                                 affect participation and earnings in tech occupations in Canada's metropolitan areas. Or, if you'd like,",a("jump",href="#diversityselection")," to the end to compare different metropolitan areas."))
                                              ), #End FluidRow
-                                    
+                                    div(class="filler_sel_2"), #Filler for the navbar
                                     fluidRow(align = "center",
+                                             class = "selectize-metro",
                                              selectInput("cma_div","Select a Metropolitan Area:",
                                                          choices = sort(cma_list[,GEO.NAME]))
                                     ), #EndFluidRow
@@ -211,7 +248,7 @@ ui <- fluidPage(theme="style.css",
                                     
                                     #GENDER DIVERSITY STARTS HERE
                                     fluidRow(class="sectiontitlewrapper",
-                                             h3("Gender diversity")
+                                             h3("Gender Diversity")
                                              
                                     ), #End FluidRow
                                     
@@ -241,10 +278,9 @@ ui <- fluidPage(theme="style.css",
                                     ), #EndFluidRow
                                     
                                     fluidRow(class="alignedrow",
-                                             column(width = 4,
-                                                    class = "column-border-right",
+                                             column(width = 5,
                                                     img(src="tech_pic_3.png", style="width:100%; min_width: 180px")),
-                                             column(width = 8, 
+                                             column(width = 7, 
                                                     p("When it comes to the gender pay gap in Tech,
                                                       almost every major city in Canada has a higher gap than the Canadian average."),
                                                     htmlOutput("pay.gap.text"),
@@ -270,29 +306,10 @@ ui <- fluidPage(theme="style.css",
                                     
                                     
                                     fluidRow(class="alignedrow",
-                                             column(width=7,
+                                             column(width=8,
+                                                    style = "margin-right:3%",
                                                     class="column-border-right",
-                                                    htmlOutput("vismin.comp.table",class = "inverse")),
-                                             column(width=5,
-                                                    p("Almost one-third of Canada's tech workers identify as visible minorities (31.9%).
-                                                      8.5 percent or almost one in twelve visible minority workers worked in a tech occupation, totalling 271,000 people."),
-                                                    htmlOutput("vismin.sumtext", class="inverse"))
-                                             ), #End FluidRow
-                                    
-                                    fluidRow(class="alignedrow",
-                                             column(width=5,
-                                                    class="column-border-right",
-                                                    p("Yet, there are important differences between different visible minority groups, and with non-visible minorities.
-                                                      In this application, we focus broadly on the idea of visible minorities. For a detailed look at how different groups
-                                                      (such as those who identify as Black, Chinese, or South Asian) compare to each other, check out our main report.")
-                                                    ), #End column
-                                             
-                                             column(width = 7,
-                                                    tableOutput("vismin.comp.nonvismin.table")
-                                             ) #End column
-                                                    ), #End FluidRow
-                                    
-                                    fluidRow(class="alignedrow",
+                                                    htmlOutput("vismin.comp.table")),
                                              column(width=4,
                                                     class="popoutbox",
                                                     div(h4("Visible Minority Identities"),
@@ -301,10 +318,34 @@ ui <- fluidPage(theme="style.css",
                                                           "persons, other than Aboriginal peoples, who are non-Caucasian in race or non-white in colour."'
                                                         ) #End p
                                                         ) #End div
-                                                        ), #End Column
-                                             column(width=7,
-                                                    htmlOutput("vismin.paygap.text"))
-                                                    ),
+                                                        ) #End Column
+
+                                             ), #End FluidRow
+                                    
+                                    fluidRow(class="alignedrow",
+                                             column(width=8,
+                                                    p("Almost one-third of Canada's tech workers identify as visible minorities (31.9 percent).
+                                                      8.5 percent or almost one in twelve visible minority workers worked in a tech occupation, totalling 271,000 people."),
+                                                    htmlOutput("vismin.sumtext"),
+                                                    p("Yet, there are important differences between visible minority groups.
+                                                      In this application, we focus broadly on the idea of visible minorities. For a detailed look at how specific groups
+                                                      compare to each other, check out our main report.")
+                                             ), #End column
+                                             
+                                             column(width=4,
+                                                    img(src="tech_pic_4.png", style="width:100%; min_width: 180px")
+                                                    ) #End Column
+                                                    ), #End FluidRow
+                                    
+                                    fluidRow(class="alignedrow",
+                                             column(width = 6,
+                                                    class="column-border-right",
+                                                    tableOutput("vismin.comp.nonvismin.table")
+                                             ), #End column
+                                             column(width=6,
+                                                    htmlOutput("vismin.paygap.text")
+                                                    ) #End Column
+                                                    ), #EndFluidRow
                                     
                                     fluidRow(plotlyOutput("vismin.paygap",height="600px")
                                     ), #End FluidRow
@@ -316,10 +357,10 @@ ui <- fluidPage(theme="style.css",
                                     
                                     #COMPARISON BEGINS HERE
                                     
-                                    fluidRow(class="sectiontitlewrapper",
-                                             h3("Compare between metropolitan areas")
+                                    fluidRow(class="sectiontitlewrapper finalsection",
+                                             h3("Compare Between Metropolitan Areas")
                                     ), #EndFluidRow
-                                    
+                                    a(id="diversityselection"),
                                     fluidRow(p("Now that you've gotten a better idea of the diversity among Canadian tech workers, you may want to compare between
                                                different metropolitan areas. Use our tool to compare the topline numbers for up to 5 metropolitan areas, 
                                                and download the result.")
@@ -350,10 +391,10 @@ ui <- fluidPage(theme="style.css",
                                     ), #EndNavbarPage
                 
                 fluidRow(class="sectiontitlewrapper",
-                         h3("About this data visualization")),
+                         h3("About This Data Visualization")),
                 fluidRow(style="font-size:1.1em",p("This data visualization was created by the Brookfield Institute for Innovation and Entrepreneurship
                                                    to accompany the", a(href="https://brookfieldinstitute.ca/","State of Canada's Tech Sector 2018: Tech Workers report."), "See the",a(href="https://brookfieldinstitute.ca/", "source code on GitHub.")),
-                         p("The report was authored by Asher Zafar, Viet Vu, and Creig Lamb. The data visualization was developed by Viet Vu using R and Shiny."),
+                         p("The report was authored by Asher Zafar, Viet Vu, and Creig Lamb. The data visualization was developed by Viet Vu using R, Shiny, and Javascript."),
                          p("This report, as well as the data visualization, would not have been possible without support from the following individuals:
                            Sean Zohar, Jessica Thomson, Nisa Malli, Annalise Huynh, Andrew Do, Sarah Doyle, as well as our reviewers."),
                          p("The main data source for the report and the visualization is the 2016 and 2006 Canadian long form census."),
@@ -369,7 +410,9 @@ ui <- fluidPage(theme="style.css",
                 fluidRow(style="background: #072b49; margin-left: 0%; margin-right: 0%; font-size: 12px !important; max-width: unset; padding-top:64px; padding-bottom:24px",
                          div(class="footer",
                              style = "padding-left: 5%; padding-right: 5%",
-                             includeHTML("www/site_footer.html")))
+                             includeHTML("www/site_footer.html"))),
+                
+                tags$script(src = "choose_city.js")
                 
                          ) #EndFluidPage
 
@@ -380,7 +423,8 @@ server <- function(input, output) {
   output$CMA_choice <- renderUI(
     selectInput("cma",
                 label=NULL,
-                choice = sort(unique(cma.data[stringr::str_sub(ID,1,2)==province.data[abbrev==input$province,code],Name]))))
+                choice = sort(unique(cma.data[stringr::str_sub(ID,1,2)==province.data[abbrev==input$province,code],Name])),
+                selected = "Toronto"))
   
   #Just the CMA
   output$CMA_chosen_as_input <- renderUI(
@@ -395,55 +439,134 @@ server <- function(input, output) {
     p
   })
   
+  
+  
+  #This reactive element isolates the ID for the cma element that will be used throughout so it only needs to update once for every change
+  #in city as opposed to once in every single update function.
+  cma.id.reactive <- reactive({
+    p <- "35507"
+    if(!is.null(input$cma)){
+      p <- cma.data[Name %in% input$cma,ID]
+    }
+    p
+  })
+  
   #Text for focusing on a particular CMA
   output$CMA_chosen_2 <- renderText({
     paste("Let's learn about ", input$cma,", ",input$province,"'s story.",sep="")})
   
+  output$CMA_chosen_3 <- renderText({
+    paste(input$cma,"'s Tech Talent",sep="")
+  })
+  
   #Interactive column plot of all the cities with the chosen city highlighted
   output$cmatot <- renderPlotly({
-    plot.cmatot(cma.reactive())
+    plot.cmatot(name_to_use=cma.reactive(),
+                cma.id=cma.id.reactive())
   })
   
   #Top occupations both Absolute and Relative
-  output$cmatopocc <- renderPlotly(plot.cmaocc(cma.reactive(),input$pct_or_tot))
+  output$cmatopocc <- renderPlotly(plot.cmaocc(cma.reactive(),
+                                               input$pct_or_tot,
+                                               cma.id=cma.id.reactive()))
   
   #Canada's top occupation both absolute and relative
   output$canadatopocc <- renderPlotly(plot.canocc(input$pct_or_tot))
   
   #Change in the tech workforce in text
-  output$cmatotnumtext <- renderUI({div(p("In 2016, ",
-                                          span(style="color:#e24585",
-                                               paste(comma(noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% input$cma, ID] & tech==1,V1]),
-                                                     " tech workers worked and lived in ",
-                                                     paste(input$cma,
-                                                           ".",sep=""))),
-                                          " This represents ",
-                                          span(style = "color:#e24585",
-                                               paste(round(100*noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% input$cma, ID] & tech==1,V1]/891720,2),
-                                                     " percent of all tech workers in Canada.",sep="")
-                                          ),
-                                          "In the past 10 years, 
-                                          over 180,000 workers joined the tech workforce in Canada and 180,000 more are predicted to 
-                                          join in the next 10 years according to", 
-                                          a(href="http://occupations.esdc.gc.ca/sppc-cops/w.2lc.4m.2@-eng.jsp",
-                                            "Employment and Social Development Canada"),
-                                          "."
-  ))
+  output$cmatotnumtext <- renderUI({
+    list.largest.city <- noc.dem.tech.map[tech==1,max(V1),by=str_sub(ALT.GEO.CODE,1,2)]
+    largest.city.pop <- list.largest.city[str_sub %in% province.data[abbrev==input$province],V1]
+    largest.city.name <- noc.dem.tech.map[tech==1 & str_sub(ALT.GEO.CODE,1,2) %in% province.data[abbrev==input$province,code] & V1 == largest.city.pop,GEO.NAME]
+    times.tech <- signif(largest.city.pop/noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1],3)
+    if(input$cma==largest.city.name){
+      div(p("In 2016, ",
+            span(class="focused-text",
+                 style="color:#e24585",
+                 paste(comma(noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1]),
+                       " tech workers worked and lived in ",
+                       paste(input$cma,
+                             ".",sep=""))),
+            " This represents ",
+            span(class="focused-text",
+                 style = "color:#e24585",
+                 paste(round(100*noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1]/891720,2),
+                       " percent of all tech workers in Canada.",sep="")
+            ),
+            "In the past 10 years, 
+            over 180,000 workers joined the tech workforce in Canada and 180,000 more are predicted to 
+            join in the next 10 years according to", 
+            a(href="http://occupations.esdc.gc.ca/sppc-cops/w.2lc.4m.2@-eng.jsp",
+              "Employment and Social Development Canada's"),
+            "projections."),
+          p(paste(largest.city.name,
+                  " was the city with",sep=""), #end paste
+            span(class="focused-text",
+                 style="color:#e24585",
+                 "the largest tech workforce"),
+            paste(" in ",
+                  province.data[abbrev==input$province,province],
+                  ".",
+                  sep="")
+            ) #end p
+          )
+    }
+    else{
+      div(p("In 2016, ",
+            span(class="focused-text",
+                 style="color:#e24585",
+                 paste(comma(noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1]),
+                       " tech workers worked and lived in ",
+                       paste(input$cma,
+                             ",",sep=""))),
+            " representing ",
+            span(class="focused-text",
+                 style = "color:#e24585",
+                 paste(round(100*noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1]/891720,2),
+                       " percent of all tech workers in Canada.",sep="")
+            ),
+            "In the past 10 years, 
+            over 180,000 workers joined the tech workforce in Canada. 180,000 more are predicted to 
+            join in the next 10 years according to", 
+            a(href="http://occupations.esdc.gc.ca/sppc-cops/w.2lc.4m.2@-eng.jsp",
+              "Employment and Social Development Canada's"),
+            "projections."),
+          p(paste(largest.city.name,
+                  ", the city with the most tech workers in ",
+                  province.data[abbrev==input$province,province],
+                  sep=""),
+            "had",
+            span(class="focused-text",
+                 style="color:#e24585",
+                 paste(times.tech,
+                       " times",
+                       sep="")),
+            paste("the tech workers in ",
+                  input$cma,
+                  ".",
+                  sep="")
+            ) #End p
+          ) #End div
+                  
+    }
+    
+
   })
   
   
   #Workforce in 2006 vs 2016 comparison text
   output$cmain2006 <- renderUI({
-    if(nrow(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID]])==0){
+    if(nrow(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.id.reactive()])==0){
       p("Unfortunately,",paste(input$cma,"'s",sep="") ,"population was too low in 2006 to have publicly published data.")
     }
     else{
-      difference <- noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1] - noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]
-      if(abs(difference)/noc.dem.tech.map[GEO.NAME %in% input$cma & tech==1,V1] < 0.01 | abs(difference)<50){
+      difference <- noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1] - noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.id.reactive(),V1]
+      if(abs(difference)/noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1] < 0.01 | abs(difference)<50){
         
         p("Looking at the Census in 2006, we find that there were",
-          span(style="color: #e24585",
-               paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
+          span(class="focused-text",
+               style="color: #e24585",
+               paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.id.reactive(),V1]),
                      " tech workers in ",
                      input$cma,
                      ".",
@@ -455,8 +578,9 @@ server <- function(input, output) {
       else{
         if(difference<0){
           p("Looking at the Census in 2006, we find that there were ",
-            span(style="color: #e24585",
-                 paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
+            span(class="focused-text",
+                 style="color: #e24585",
+                 paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.id.reactive(),V1]),
                        " tech workers in ",
                        input$cma,
                        ".",
@@ -467,9 +591,11 @@ server <- function(input, output) {
           )
         }
         else{
+          pct_change <- 100*difference/noc.dem.tech.map[ALT.GEO.CODE %in% cma.id.reactive() & tech==1,V1]
           p("Looking at the Census in 2006, we find that there were",
-            span(style="color: #e24585",
-                 paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.data[Name %in% input$cma,ID],V1]),
+            span(class="focused-text",
+                 style="color: #e24585",
+                 paste(comma(noc.2006.city[tech=="Tech Occupation" & GEO.CODE %in% cma.id.reactive(),V1]),
                        " tech workers in ",
                        input$cma,
                        ".",
@@ -477,7 +603,9 @@ server <- function(input, output) {
                  )
             ),
             " This means that the number of tech workers have increased over the past 10 years",
-            paste("by ",comma(abs(difference))," workers.",sep="")
+            paste("by ",comma(abs(difference))," workers.",sep=""),
+            " In other words,",
+            paste(signif(pct_change,2),"% of tech workers in ",input$cma," joined the tech workforce in the past 10 years.",sep="")
           )         
         }
       }
@@ -486,15 +614,16 @@ server <- function(input, output) {
   })
   
   #Plot the main education graph
-  output$educ.column <- renderPlotly(plot.educ(cma.reactive()))
+  output$educ.column <- renderPlotly(plot.educ(cma.reactive(),cma.id=cma.id.reactive()))
   
   #Text for the education section
   output$educ.text <- renderUI({
     p("Tech Workers in Canada are highly educated. 
       In fact, almost 58 percent of tech workers hold a Bachelor's degree or above, 
       compared to 26 percent of workers not in tech occupations.",
-      span(style="color: #e24585",paste("In ",input$cma,", ",
-                                        round(cma.ca.educ[ALT.GEO.CODE %in% cma.data[Name %in% input$cma,ID] & EDUC15.ID==10,pct]),"%", sep = ""),
+      span(class="focused-text",
+           style="color: #e24585",paste("In ",input$cma,", ",
+                                        round(cma.ca.educ[ALT.GEO.CODE %in% cma.id.reactive() & EDUC15.ID==10,pct])," percent", sep = ""),
            " of tech workers held a Bachelor's degree or above."
       ))
   })
@@ -529,7 +658,8 @@ server <- function(input, output) {
   
   #Tech premium text
   output$tech.premium.text <- renderUI({
-    p(span(style ="color: #e24585",
+    p(span(class="focused-text",
+           style ="color: #e24585",
            "In ",
            paste(input$cma_div,",",sep=""),
            " tech workers were paid ",
@@ -560,7 +690,8 @@ server <- function(input, output) {
     gap.amount <- tech_gender[GEO.NAME %in% input$cma_div,pay.gap]
     ratio <- round(tech_gender[GEO.NAME %in% input$cma_div, male.prop.tech/prop.tech],1)
     div(p("In ",
-          span(style = "color: #e24585",
+          span(class="focused-text",
+               style = "color: #e24585",
                paste(input$cma_div,",",sep=""),
                " the gender pay gap for tech workers was around",
                paste(" $",comma(signif(gap.amount,3)),".",sep=""))))
@@ -574,13 +705,15 @@ server <- function(input, output) {
     div(p("In",
           paste(input$cma_div,",",sep=""),
           "men were",
-          span(style = "color: #e24585", 
+          span(class="focused-text",
+               style = "color: #e24585", 
                paste(ratio, " times more likely",sep="")),
           " to work in a tech occupation,",
           "where",
-          span(style = "color: #e24585",
+          span(class="focused-text",
+               style = "color: #e24585",
                paste(round(tech_gender[GEO.NAME %in% input$cma_div,prop.tech],1),
-                     "%",
+                     " percent",
                      " of women",sep = "")), " worked in tech occupations.",sep=""))
   })
   #Gender table in main text chosen CMA and Canada
@@ -600,7 +733,8 @@ server <- function(input, output) {
   output$vismin.sumtext <- renderUI({
     num.vismin <- signif(tech_vismin[GEO.NAME %in% input$cma_div & VIS.MIN15.ID == 2, V1],3)
     p("In 2016, ",
-      span(style ="color: #e24585" ,
+      span(class="focused-text",
+           style ="color: #e24585" ,
            paste(comma(num.vismin)," visible minorities worked",sep=""),
            " in tech occupations in ",
            paste(input$cma_div,".",sep="")))
@@ -616,7 +750,8 @@ server <- function(input, output) {
     p("In terms of the pay difference that exists between tech workers with a visible minority identity,",
       "we found that",
       paste("tech workers in ",input$cma_div," make",sep=""),
-      span(style="color: #e24585",
+      span(class="focused-text",
+           style="color: #e24585",
            paste("$",comma(pay.gap)," less",sep="")),
       "than their non-visible minority counterparts.")
   })

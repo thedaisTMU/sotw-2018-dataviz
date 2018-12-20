@@ -8,107 +8,134 @@ library(scales)
 
 #Function returns the first graph used in the dataviz - y-axis is share of tech workers for every single
 #CMA and CA in Canada
-plot.cmatot <- function(name_to_use){
-  if(is.null(name_to_use)){
-    noc.dem.tech.map[,cma.focus:="0"]
-    noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% "Arnprior",ID],cma.focus:="1"]
-    column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
-      geom_col(aes(text=paste(GEO.NAME,
-                              "<br>",
-                              "Concentration of Tech Workers:",
-                              str_c(signif(pct,2),"%"))),
-               width=0.6) + 
-      BF.Base.Theme + 
-      scale_y_continuous(expand=c(0,0),breaks = c(0,2.5,5,7.5,10),labels = c("0%","2.5%","5%","7.5%","10%"),limits = c(0,12)) + 
-      theme(axis.text.x = element_blank(),
-            axis.title.x = element_text(size=9, color="#072b49"),
-            axis.title.y = element_text(size=9, color="#072b49"),
-            axis.ticks.x = element_blank(),
-            axis.text.y = element_text(size=9, margin=ggplot2::margin(r=2),color="#072b49"),
-            axis.line = ggplot2::element_line(size=0.25, colour = "#072b49"),
-            legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#072b49"),
-            axis.ticks = ggplot2::element_line(size=0.15,colour = "#072b49")) +
-      scale_fill_manual(values = c("#072b49","#e24585")) +
-      guides(fill="none",colour = "none") +
-      labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city")
-    graph <- config(layout(ggplotly(column.pct,tooltip=c("text"),showlegend=FALSE,showscale=FALSE),
-                           legend = list(orientation = 'h'),
-                           xaxis=list(fixedrange=TRUE), 
-                           yaxis=list(fixedrange=TRUE)),
-                    displayModeBar=F)
-
-    graph$x$data[[1]]$name <- "Other Cities/Towns"
-    graph$x$data[[2]]$name <- "Arnprior"
-    graph
-  }
-  else{
-    noc.dem.tech.map[,cma.focus:="0"]
-    noc.dem.tech.map[ALT.GEO.CODE %in% cma.data[Name %in% name_to_use,ID],cma.focus:="1"]
-    column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
-      geom_col(aes(text=paste(GEO.NAME,
-                              "<br>",
-                              "Concentration of Tech Workers:",
-                              str_c(signif(pct,2),"%"))),
-               width=0.6) + 
-      BF.Base.Theme + 
-      scale_y_continuous(expand=c(0,0),
-                         breaks = c(0,2.5,5,7.5,10),
-                         labels = c("0%","2.5%","5%","7.5%","10%"),
-                         limits = c(0,12)) + 
-      theme(axis.text.x = element_blank(),
-            axis.title.x = element_text(size=9, color="#072b49"),
-            axis.title.y = element_text(size=9, color="#072b49"),
-            axis.ticks.x = element_blank(),
-            axis.text.y = element_text(size=9, margin=ggplot2::margin(r=2),color="#072b49"),
-            axis.line = ggplot2::element_line(size=0.25, colour = "#072b49"),
-            legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#072b49"),
-            axis.ticks = ggplot2::element_line(size=0.15,colour = "#072b49")) +
-      scale_fill_manual(values = c("#072b49","#e24585")) +
-      guides(fill="none",colour = "none") +
-      labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city") +
-      annotate("segment",
-               y = noc.dem.tech.map[cma.focus=="1" & tech==1,pct]+0.02,
-               x = noc.dem.tech.map[cma.focus=="1" & tech==1,rownum],
-               xend = noc.dem.tech.map[cma.focus=="1" & tech==1,rownum],
-               yend = floor(noc.dem.tech.map[cma.focus=="1" & tech==1,pct])+2,
-               linetype = "dotted",
-               colour = "#e24585") +
-      annotate("text",
-               x = noc.dem.tech.map[cma.focus=="1" & tech==1,rownum],
-               y = floor(noc.dem.tech.map[cma.focus=="1" & tech==1,pct])+2,
-               colour = "#e24585",
-               label = noc.dem.tech.map[cma.focus=="1" & tech==1,GEO.NAME],
-               hjust = 0,
-               size = 15*0.352777778)
-    graph <- config(layout(ggplotly(column.pct,tooltip=c("text"),showlegend=FALSE,showscale=FALSE),
-                           legend = list(orientation = 'h'),
-                           xaxis=list(fixedrange=TRUE), 
-                           yaxis=list(fixedrange=TRUE)),
-                    displayModeBar=F)
-    graph$x$data[[4]]$hoverinfo <- "none"
-    graph$x$data[[3]]$hoverinfo <- "none"
-    if(noc.dem.tech.map[cma.focus=="1" & tech==1, rownum]<50){
-      graph$x$data[[4]]$textposition <- "top right"
+plot.cmatot <- function(name_to_use,cma.id){
+    #This first bit ensures that during initial loading something is displayed instead of returning an error
+    if(is.null(name_to_use)){
+      noc.dem.tech.map[,cma.focus:="0"]
+      noc.dem.tech.map[ALT.GEO.CODE %in% cma.id,cma.focus:="1"]
+      column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
+        geom_col(aes(text=paste(GEO.NAME,
+                                "<br>",
+                                "Concentration of Tech Workers:",
+                                str_c(signif(pct,2),"%"),
+                                "<br>",
+                                "Number of Tech Workers:",
+                                comma(signif(V1,3)))),
+                 width=0.6) + 
+        BF.Base.Theme + 
+        scale_y_continuous(expand=c(0,0),
+                           breaks = c(0,2.5,5,7.5,10),
+                           labels = c("0%","2.5%","5%","7.5%","10%"),
+                           limits = c(0,12)) + 
+        theme(axis.text.x = element_blank(),
+              axis.title.x = element_text(size=9, 
+                                          color="#072b49"),
+              axis.title.y = element_text(size=9, 
+                                          color="#072b49"),
+              axis.ticks.x = element_blank(),
+              axis.text.y = element_text(size=9, 
+                                         margin=ggplot2::margin(r=2),
+                                         color="#072b49"),
+              axis.line = ggplot2::element_line(size=0.25, 
+                                                colour = "#072b49"),
+              legend.text = ggplot2::element_text(size=9,
+                                                  margin=ggplot2::margin(r=2),
+                                                  color = "#072b49"),
+              axis.ticks = ggplot2::element_line(size=0.15,
+                                                 colour = "#072b49")) +
+        scale_fill_manual(values = c("#072b49","#e24585")) +
+        guides(fill="none",colour = "none") +
+        labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city")
+      graph <- config(layout(ggplotly(column.pct,
+                                      tooltip=c("text"),
+                                      showlegend=FALSE,
+                                      showscale=FALSE),
+                             legend = list(orientation = 'h'),
+                             xaxis=list(fixedrange=TRUE), 
+                             yaxis=list(fixedrange=TRUE)),
+                      displayModeBar=F)
+      
+      graph$x$data[[1]]$name <- "Other Cities/Towns"
+      graph$x$data[[2]]$name <- "Arnprior"
+      graph
     }
-    else if(noc.dem.tech.map[cma.focus=="1" & tech==1,rownum]>=100){
-      graph$x$data[[4]]$textposition <- "top left"
-    }
+    #Now the actual dynamic bit begins...
     else{
-      graph$x$data[[4]]$textposition <- "top center"
+      noc.dem.tech.map.to.use <- noc.dem.tech.map[tech==1]
+      noc.dem.tech.map.to.use[,cma.focus:="0"]
+      noc.dem.tech.map.to.use[ALT.GEO.CODE %in% cma.id,cma.focus:="1"]
+      x.focus <- noc.dem.tech.map.to.use[cma.focus=="1" ,rownum]
+      y.focus <- noc.dem.tech.map.to.use[cma.focus=="1" ,pct]
+      column.pct <- ggplot(data=noc.dem.tech.map.to.use,aes(GEO.NAME,pct,fill=cma.focus)) + 
+        geom_col(aes(text=paste(GEO.NAME,
+                                "<br>",
+                                "Concentration of Tech Workers:",
+                                str_c(signif(pct,2),"%"),
+                                "<br>",
+                                "Number of Tech Workers:",
+                                comma(signif(V1,3))
+                                )
+                     ),
+                 width=0.6) + 
+        BF.Base.Theme + 
+        scale_y_continuous(expand=c(0,0),
+                           breaks = c(0,2.5,5,7.5,10),
+                           labels = c("0%","2.5%","5%","7.5%","10%"),
+                           limits = c(0,12)) + 
+        theme(axis.text.x = element_blank(),
+              axis.title.x = element_text(size=9, color="#072b49"),
+              axis.title.y = element_text(size=9, color="#072b49"),
+              axis.ticks.x = element_blank(),
+              axis.text.y = element_text(size=9, margin=ggplot2::margin(r=2),color="#072b49"),
+              axis.line = ggplot2::element_line(size=0.25, colour = "#072b49"),
+              legend.text = ggplot2::element_text(size=9,margin=ggplot2::margin(r=2),color = "#072b49"),
+              axis.ticks = ggplot2::element_line(size=0.15,colour = "#072b49")) +
+        scale_fill_manual(values = c("#072b49","#e24585")) +
+        guides(fill="none",colour = "none") +
+        labs(y="Tech Workers as a Share of Local Workforce",x="Hover over each bar to learn about a city") +
+        annotate("segment",
+                 y = y.focus+0.02,
+                 x = x.focus,
+                 xend = x.focus,
+                 yend = floor(y.focus)+2,
+                 linetype = "dotted",
+                 colour = "#e24585") +
+        annotate("text",
+                 x = x.focus,
+                 y = floor(y.focus)+2,
+                 colour = "#e24585",
+                 label = name_to_use,
+                 hjust = 0,
+                 size = 15*0.352777778)
+      graph <- config(layout(ggplotly(column.pct,tooltip=c("text"),showlegend=FALSE,showscale=FALSE),
+                             legend = list(orientation = 'h'),
+                             xaxis=list(fixedrange=TRUE), 
+                             yaxis=list(fixedrange=TRUE)),
+                      displayModeBar=F)
+      graph$x$data[[4]]$hoverinfo <- "none"
+      graph$x$data[[3]]$hoverinfo <- "none"
+      if(x.focus<50){
+        graph$x$data[[4]]$textposition <- "top right"
+      }
+      else if(x.focus>=100){
+        graph$x$data[[4]]$textposition <- "top left"
+      }
+      else{
+        graph$x$data[[4]]$textposition <- "top center"
+      }
+      graph$x$data[[1]]$name <- "Other Cities/Towns"
+      graph$x$data[[2]]$name <- name_to_use
+      graph
     }
-    graph$x$data[[1]]$name <- "Other Cities/Towns"
-    graph$x$data[[2]]$name <- name_to_use
-    graph
-  }
+
 }
 
 #Function returns the second graph used in the dataviz - y-axis is the number of workers or share of workers depending on button chosen and
 #x axis is top 10 occupations in that city
-plot.cmaocc <- function(name_to_use, pct_or_tot){
-    noc.dem.city.plot <- noc.dem.city[ALT.GEO.CODE %in% cma.data[Name %in% name_to_use,ID]]
-    noc.dem.canada.plot <- noc.dem.canada[(.N-9):.N]
+plot.cmaocc <- function(name_to_use, pct_or_tot, cma.id){
+    noc.dem.city.plot <- noc.dem.city[ALT.GEO.CODE %in% cma.id]
     noc.dem.city.plot[,cat:="Top 10 Occupations Locally"]
-    noc.dem.city.plot[NOC %in% noc.dem.canada.plot[,NOC],cat:="Top 10 Occupations Canada-wide"]
+    noc.dem.city.plot[NOC %in% noc.dem.canada[,NOC],cat:="Top 10 Occupations Canada-wide"]
     if(nrow(noc.dem.city.plot)>10){
       noc.dem.city.plot <- noc.dem.city.plot[(.N-9):.N]
     }
@@ -161,12 +188,11 @@ plot.cmaocc <- function(name_to_use, pct_or_tot){
 
 #Function returns the third graph used in the dataviz - y-axis is the Canadian plot of the second graph
 plot.canocc <- function(pct_or_tot){
-  noc.dem.canada.plot <- noc.dem.canada[(.N-9):.N]
   if(pct_or_tot == "Total Tech Workers"){
-    max.plot <- max(noc.dem.canada.plot[,TOT])
+    max.plot <- max(noc.dem.canada[,TOT])
     min.plot <- 0
     ticks <- set.ticks.seq(max.plot,min.plot,unit="")
-    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,TOT),TOT)) +
+    plot_pct_or_tot <- ggplot(data=noc.dem.canada,aes(reorder(NOC,TOT),TOT)) +
       geom_col(aes(text=paste(reorder(NOC,TOT),
                               "<br>",
                               "Total Employed:",
@@ -183,7 +209,7 @@ plot.canocc <- function(pct_or_tot){
     max.plot <- max(noc.dem.canada[,pct])
     min.plot <- 0
     ticks <- set.ticks.seq(max.plot,min.plot,unit="%")
-    plot_pct_or_tot <- ggplot(data=noc.dem.canada.plot,aes(reorder(NOC,pct),pct)) +
+    plot_pct_or_tot <- ggplot(data=noc.dem.canada,aes(reorder(NOC,pct),pct)) +
       geom_col(aes(text=paste(reorder(NOC,TOT),
                               "<br>",
                               "Share of Tech Workforce:",
@@ -204,11 +230,9 @@ plot.canocc <- function(pct_or_tot){
 }
 
 #Plot the line graph for educational attainment shares for each CMA/CA
-plot.educ <- function(name_to_use){
-  cma.ca.educ[,EDUC15:=str_wrap(EDUC15,30)]
-  cma.ca.educ[,EDUC15:=reorder(EDUC15,EDUC15.ID)]
+plot.educ <- function(name_to_use,cma.id){
   cma.ca.educ[,dum:=0]
-  cma.ca.educ[ALT.GEO.CODE %in% cma.data[Name %in% name_to_use,ID],dum:=1]
+  cma.ca.educ[ALT.GEO.CODE %in% cma.id,dum:=1]
   plot.educ.share <- ggplot(data=cma.ca.educ[dum==0],aes(EDUC15,pct)) +
     BF.Base.Theme +
     theme(axis.text.x = element_text(size=9,colour="#072b49"),
@@ -253,61 +277,66 @@ plot.educ <- function(name_to_use){
 
 #Draw the first comparison table between cities
 draw.table.topline <- function(comparison.cma){
-  topline.vars <- c("<div class=tooltiphelp> Number of tech workers<span class=tooltiptexthelp> Total number of workers in tech occupations in a geographic area</span> </div>",
+  topline.vars <- c("<div class=tooltiphelp> Number of Tech Workers<span class=tooltiptexthelp> Total number of workers in tech occupations in a geographic area</span> </div>",
                     "<div class=tooltiphelp>Concentration of Tech Workers<span class=tooltiptexthelp>Share of all workers in a geographic region who are tech workers </span> </div>",
                     "<div class=tooltiphelp>Number of Tech Workers in 2006<span class=tooltiptexthelp> Total number of workers in tech occupations in a geographic area in 2006 </span></div>",
-                    "<div class=tooltiphelp>Share of Tech Workers with Bachelors Degree or higher<span class=tooltiptexthelp> Share of tech workers with a Bachelors degree or above as their highest degree </span> </div>")
+                    "<div class=tooltiphelp>Share of Tech Workers With Bachelors Degree or Higher<span class=tooltiptexthelp> Share of tech workers with a Bachelors degree or above as their highest degree </span> </div>")
   final.table <- data.table(first.col = topline.vars)
   names(final.table) <- c("Metrics")
   if(length(comparison.cma)>0){
     #Set up first column
     if(!is.na(comparison.cma[1][[1]])){
-      first.city <- c(comma(round(noc.dem.tech.map[tech==1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[1][[1]],ID],V1])),
-                      str_c(signif(noc.dem.tech.map[tech==1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[1][[1]],ID],pct],2),"%"),
-                      ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[1][[1]],ID],V1])==0,
+      first.city.id <- cma.data[Name == comparison.cma[1][[1]],ID]
+      first.city <- c(comma(round(noc.dem.tech.map[tech==1 & ALT.GEO.CODE %in% first.city.id,V1])),
+                      str_c(signif(noc.dem.tech.map[tech==1 & ALT.GEO.CODE %in% first.city.id,pct],2),"%"),
+                      ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% first.city.id,V1])==0,
                              "NA",
-                             comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[1][[1]],ID],V1]))),
-                      str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% comparison.cma[1][[1]],ID],pct],2),"%"))
+                             comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% first.city.id,V1]))),
+                      str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% first.city.id,pct],2),"%"))
       final.table[,first:=first.city]
     }
     #Set up second column
     if(!is.na(comparison.cma[2][[1]])){
-      second.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[2][[1]],ID],V1])),
-                       str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[2][[1]],ID],pct],2),"%"),
-                       ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[2][[1]],ID],V1])==0,
+      second.city.id <- cma.data[Name == comparison.cma[2][[1]],ID]
+      second.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% second.city.id,V1])),
+                       str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% second.city.id,pct],2),"%"),
+                       ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% second.city.id,V1])==0,
                               "NA",
-                              comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[2][[1]],ID],V1]))),
-                       str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% comparison.cma[2][[1]],ID],pct],2),"%"))
+                              comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% second.city.id,V1]))),
+                       str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% second.city.id,pct],2),"%"))
       final.table[,second:=second.city]
     }
     #Set up third column
     if(!is.na(comparison.cma[3][[1]])){
-      third.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[3][[1]],ID],V1])),
-                      str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[3][[1]],ID],pct],2),"%"),
-                      ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[3][[1]],ID],V1])==0,
+      third.city.id <- cma.data[Name == comparison.cma[3][[1]],ID]
+      third.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% third.city.id,V1])),
+                      str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% third.city.id,pct],2),"%"),
+                      ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% third.city.id,V1])==0,
                              "NA",
-                             comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[3][[1]],ID],V1]))),
-                      str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% comparison.cma[3][[1]],ID],pct],2),"%"))
+                             comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% third.city.id,V1]))),
+                      str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% third.city.id,pct],2),"%"))
       final.table[,third:=third.city]
     }
     #Set up fourth column
     if(!is.na(comparison.cma[4][[1]])){
-      fourth.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[4][[1]],ID],V1])),
-                       str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[4][[1]],ID],pct],2),"%"),
-                       ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[4][[1]],ID],V1])==0,
+      fourth.city.id <- cma.data[Name == comparison.cma[4][[1]],ID]
+      fourth.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% fourth.city.id,V1])),
+                       str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% fourth.city.id,pct],2),"%"),
+                       ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% fourth.city.id,V1])==0,
                               "NA",
-                              comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[4][[1]],ID],V1]))),
-                       str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% comparison.cma[4][[1]],ID],pct],2),"%"))
+                              comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% fourth.city.id,V1]))),
+                       str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% fourth.city.id,pct],2),"%"))
       final.table[,fourth:=fourth.city]
     }
     #Set up fifth column
     if(!is.na(comparison.cma[5][[1]])){
-      fifth.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[5][[1]],ID],V1])),
-                      str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% cma.data[Name == comparison.cma[5][[1]],ID],pct],2),"%"),
-                      ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[5][[1]],ID],V1])==0,
+      fifth.city.id <- cma.data[Name == comparison.cma[5][[1]],ID]
+      fifth.city <- c(comma(round(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% fifth.city.id,V1])),
+                      str_c(signif(noc.dem.tech.map[tech == 1 & ALT.GEO.CODE %in% fifth.city.id,pct],2),"%"),
+                      ifelse(length(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% fifth.city.id,V1])==0,
                              "NA",
-                             comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% cma.data[Name == comparison.cma[5][[1]],ID],V1]))),
-                      str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% cma.data[Name %in% comparison.cma[5][[1]],ID],pct],2),"%"))
+                             comma(round(noc.2006.city[tech == "Tech Occupation" & GEO.CODE %in% fifth.city.id,V1]))),
+                      str_c(signif(cma.ca.educ[EDUC15.ID == 10 & ALT.GEO.CODE %in% fifth.city.id,pct],2),"%"))
       final.table[,fifth:=fifth.city]
     }
     names(final.table) <- c("Metrics", comparison.cma)

@@ -16,7 +16,7 @@ load("data/cma.tech.concentration.rds") #Loads noc.dem.tech.map
 load("data/city_occ_emp_data.RDS") #Loads noc.dem.city
 load("data/canada_occ_emp.RDS") #Loads noc.dem.canada
 load("data/cma_tech_2006.RDS") #Loads noc.2006.city
-load("data/diversity_cma.RDS") #Loads can_thing
+#load("data/diversity_cma.RDS") #Loads can_thing - only needed for development. No need in production
 load("data/tech_premium.RDS") #Loads tech_premium
 load("data/cma_list.RDS") #Loads cma_list
 load("data/tech_gender.RDS") #Loads tech_gender

@@ -150,6 +150,9 @@ h3{
   font-family: 'rooneyprolight' !important; 
   color:#d1236c;
 }
+h4{
+  font-family: 'rooneysansbold' !important;
+}
 
 .container-fluid{
   padding-left: 0px;
@@ -174,6 +177,18 @@ h3{
     margin-right: 15%;
     margin-left: 15%;
 }
+.sticky-selection-nav{
+  float:left;
+  position:fixed;
+  bottom:40%;
+  right:0%;
+  width:10%;
+  z-index: 1000;
+  background:#fff;
+  padding-right:0;
+  padding-left:0;
+  font-size: 9px !important;
+}
 }
 
 @media (min-width: 1680px){
@@ -182,12 +197,34 @@ h3{
     margin-right: 20%;
     margin-left: 20%;
 }
+.sticky-selection-nav{
+  float:left;
+  position:fixed;
+  bottom:50%;
+  right:0%;
+  width:15%;
+  z-index: 1000;
+  background:#fff;
+  padding-right:0;
+  padding-left:0;
+}
 }
 
 
 i{
   font-family:FontAwesome !important;
 }
+
+.sticky-selection{
+  float:left;
+  display:table-row;
+  position:fixed;
+  top:0;
+  z-index: 1000;
+  background:#fff;
+}
+
+
 
 /*Order matters here - the sectionttitlewrapper must override row paddings*/
 .sectiontitlewrapper{
@@ -239,10 +276,10 @@ i{
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 790px) {
     .alignedrow {
         display:flex;
-        align-items:center;
+        align-items:block;
     }
     .column-border-right{
       border-right: 1px solid #072b49;
@@ -253,6 +290,18 @@ i{
     table.table{
       font-size:0.7em;
     }
+    .sticky-selection-nav{
+  float:left;
+  position:fixed;
+  bottom:40%;
+  right:0%;
+  width:10%;
+  z-index: 1000;
+  background:#fff;
+  padding-right:0;
+  padding-left:0;
+  font-size: 9px !important;
+}
 }
 
 @media (min-width: 1024px) {
@@ -269,6 +318,10 @@ i{
     table.table{
       font-size:1em;
     }
+    .focused-text{
+      font-size:25px !important;
+    }
+
 }
 
 @media (min-width: 1200px) {
@@ -285,8 +338,46 @@ i{
     table.table{
       font-size:inherit;
     }
+
 }
 
+
+.nonmobile{
+  display:none;
+}
+
+@media (min-width: 768px){
+  .nonmobile{
+    display:flex;
+  }
+}
+
+
+/*CSS for pop-up box*/
+.popupbox{
+  background: #d1236c; 
+  color: #fff; 
+  margin-bottom: 20px; 
+  padding-top: 15px; 
+  padding-bottom: 15px
+}
+
+.popupbox>div>p>a{
+  color: #fff;
+  background-image: linear-gradient(to top, transparent, transparent 0px, #fff 0px, #fff 1px, transparent 1px);
+  text-decoration:none;
+}
+
+.popupbox>div>p>a:hover{
+  color: #fff;
+  text-decoration:none;
+  background-image: linear-gradient(to top, transparent, transparent 0px, #072b49 0px, #072b49 1px, transparent 1px);
+}
+.popupbox>div>p>a:focus{
+  color: #fff;
+  text-decoration:none;
+  background-image: linear-gradient(to top, transparent, transparent 0px, #072b49 0px, #072b49 1px, transparent 1px);
+}
 
 
 
@@ -313,7 +404,10 @@ i{
 }
 
 .navbar-nav{
-  margin: 10px 0px;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  margin-right: 0px;
+  margin-left: 0px;
   font-size: 18px;
 }
 
@@ -330,9 +424,7 @@ i{
   color: #fff
 }
 
-.navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover{
-  color:#fff;
-}
+
 
 .navbar-default:hover{
   color: #fff;
@@ -359,6 +451,38 @@ i{
   padding-left: 10px;
   padding-right: 10px;
 }
+
+
+
+
+
+
+
+
+
+/*Links*/
+p>a{
+  color: #072b49;
+  background-image: linear-gradient(to top, transparent, transparent 0px, #072b49 0px, #072b49 1px, transparent 1px);
+  text-decoration:none;
+}
+p>a:hover{
+  color: #072b49;
+  text-decoration:none;
+  background-image: linear-gradient(to top, transparent, transparent 0px, #e24585 0px, #e24585 1px, transparent 1px);
+}
+p>a:focus{
+  color: #072b49;
+  text-decoration:none;
+  background-image: linear-gradient(to top, transparent, transparent 0px, #e24585 0px, #e24585 1px, transparent 1px);
+}
+
+
+
+
+
+
+
 
 
 
@@ -416,6 +540,29 @@ input[type=radio] {
   display:block;
 }
 
+.radio-inline:hover i.fa {
+    color: #072b49;
+}
+
+
+/* When the radio button is checked, add a blue background */
+.radio-inline input ~ span>i.fa-circle-o {
+    color: #072b49;
+    display:block;
+}
+
+.radio-inline input ~ span>i.fa-dot-circle-o {
+    display:none;
+}
+
+.radio-inline input:checked ~span>i.fa-circle-o{
+  display:none;
+}
+
+.radio-inline input:checked ~ span>i.fa-dot-circle-o {
+  color: #072b49;
+  display:block;
+}
 
 
 
