@@ -1,3 +1,20 @@
+document.getElementsByClassName("navbar-nav")[0].children[0].onclick = function(){
+	document.getElementsByClassName("nonmobile")[0].children[0].children[0].classList.add("techimage4")
+	document.getElementsByClassName("nonmobile")[0].children[0].children[0].classList.remove("techimage4reverse")
+}
+
+document.getElementsByClassName("navbar-nav")[0].children[1].onclick=function(){
+	document.getElementsByClassName("nonmobile")[0].children[0].children[0].classList.remove("techimage4")
+	document.getElementsByClassName("nonmobile")[0].children[0].children[0].classList.add("techimage4reverse")
+}
+
+
+
+
+
+
+
+
 window.onscroll = function() {myFunction()};
 
 var sticky_bottom_first = document.getElementsByClassName("tab-pane")[0].getElementsByClassName("finalsection")[0].offsetTop; //This is to set the end for float just above the Select 5 cities
@@ -26,7 +43,10 @@ function myFunction() {
 
 		if (window.pageYOffset > start_height_second_tab && window.pageYOffset < window.sticky_bottom_second *1.1) {
   			cma_select.getElementsByClassName("form-group")[0].classList.add("sticky-selection");
-  			cma_select.getElementsByClassName("form-group")[0].style.width="80%";
+  			cma_select.getElementsByClassName("form-group")[0].style.width="70%";
+  			if(window.innerWidth>=1680){
+  				cma_select.getElementsByClassName("form-group")[0].style.width="80%";
+  			}
   			cma_select.getElementsByClassName("form-group")[0].style.borderBottom="3px solid #e24585";
   			cma_select.getElementsByClassName("form-group")[0].style.maxWidth="1152px";
   			cma_select.getElementsByClassName("form-group")[0].getElementsByClassName("control-label")[0].style.display="table-cell";
@@ -56,7 +76,10 @@ function myFunction() {
 		}
 		if(window.pageYOffset > start_height_first_tab && window.pageYOffset < sticky_bottom_first - 200){ //Check proper offset
 			cma_select.classList.add("sticky-selection"); //Add the sticky seleciton class
-			cma_select.style.width="80%"; //Set the width - needed to override prior class
+			cma_select.style.width="70%"; //Set the width - needed to override prior class
+			if(window.innerWidth>=1680){
+  				cma_select.style.width="80%";
+  			}
 			cma_select.style.borderBottom="3px solid #e24585"; //Set border for distinction
 			cma_select.style.maxWidth="1152px"; //Set maximum width in case
 			filler_sel_1.style.height=String(height_first_tab) + "px"; //Set filler height

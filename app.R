@@ -24,12 +24,13 @@ ui <- fluidPage(theme="style.css",
                     includeHTML("www/header.html")),
                 
                 
-                titlePanel("",windowTitle = "Brookfield Institute - Canada's Tech Diary"), #Name to show up on browser. Favicon is set in css document
+                titlePanel("",windowTitle = "Brookfield Institute - Canada's Tech Compass"), #Name to show up on browser. Favicon is set in css document
                 #div(style = "margin-right: 10%; margin-left: 10%; padding-bottom: 15px", h1("Canada's Tech Diary")),
-                div(class="filler"),
+               
                 div(class="nonmobile",
                     style="padding-left:10%; padding-right:10%;position:relative;",
                     div(style="margin-left:auto;margin-right:auto;position:relative;display:block",
+                        img(class="techimage4",src="tech_pic_4.png"),
                         p(style="margin-bottom:0px; font-size:25px; font-family:'rooneysansbold' !important; color: #d1236c; padding-right: 40px","Explore") #End p
                         ) #End div
                     ), #End div
@@ -38,8 +39,9 @@ ui <- fluidPage(theme="style.css",
                     img(style="margin-left:auto;margin-right:auto;position:relative;display:block; height:70px",
                         src="Arrows.svg")),
                 
+                div(class="filler"),
                 navbarPage("",
-                           tabPanel("Key Statistics (Cities and Towns)",
+                           tabPanel("Key Statistics (Cities)",
                                     
                                     fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Key Statistics")),
                                              div(style="padding-top: 30px; padding-bottom: 30px",
@@ -51,7 +53,7 @@ ui <- fluidPage(theme="style.css",
                                     fluidRow(align="center",
                                              class="selectize-city",
                                              div(div(style="display: inline-block;vertical-align:middle; height:34px",
-                                                     p("Of the city/town in the province/territory of")),
+                                                     p("Of the cities in the province/territory of")),
                                                  div(style="display: inline-block; height: 34px",
                                                      selectInput("province",
                                                                  label = "",
@@ -104,9 +106,9 @@ ui <- fluidPage(theme="style.css",
                                              
                                              ), #EndFluidRow
                                     
-                                    
+                                    img(src="tech_pic_8.png",class="techimage8"),
                                     fluidRow(align="center",
-                                             style="font-size: 28px; padding-top: 50px; padding-bottom: 50px",
+                                             style="font-size: 28px; padding-top: 50px; padding-bottom: 50px; position:relative; z-index:1; background: transparent",
                                              textOutput("CMA_chosen_2")
                                     ), #EndFluidRow
                                     
@@ -128,10 +130,10 @@ ui <- fluidPage(theme="style.css",
                                                     fluidRow(style = "margin-left:inherit; margin-right:inherit;padding-left:0; padding-right:0",
                                                              div(style="background: #d1236c; padding-top: 15px; padding-bottom: 15px; margin-bottom: 7px; color: #fff; padding-left: 10px; padding-right: 10px",
                                                                  h4(style="font-size:14px","Top 10 Occupations Locally"),
-                                                                 p(style="font-size: 0.7em","These occupations are different from the top 10 tech occupations by employment nationally.")),
+                                                                 p(style="font-size: 0.7em","These occupations are not amongst the national top 10 tech occupations by employment.")),
                                                              div(style="background: #072b49; padding-top: 15px; padding-bottom: 15px; color: #fff; padding-left: 10px; padding-right: 10px",
                                                                  h4(style="font-size:14px","Top 10 Occupations Canada-wide"),
-                                                                 p(style="font-size: 0.7em","These occupations are also represented in the top 10 tech occupations by employment nationally.")))), #End Column
+                                                                 p(style="font-size: 0.7em","These occupations are also in the national top 10 tech occupations by employment.")))), #End Column
                                              column(align = "center",
                                                     textOutput("CMA_chosen_3"),
                                                     plotlyOutput("cmatopocc",height="500px"),
@@ -155,7 +157,7 @@ ui <- fluidPage(theme="style.css",
                                     fluidRow(class="sectiontitlewrapper",
                                              h3("Educational Attainment of Tech Workers")
                                     ), #End FluidRow
-                                    
+                                    img(src="tech_pic_7.png",class="techimage7"),
                                     fluidRow(class="alignedrow",
                                              column(width=3,
                                                     div(h4("How to read this graph"),
@@ -178,7 +180,7 @@ ui <- fluidPage(theme="style.css",
                                                     img(src="tech_pic_2.png",style="width:100%; min-width:160px")),
                                              column(width=8,
                                                     htmlOutput("educ.text"),
-                                                    p("In the", a(href="https://brookfieldinstitute.ca/", "report,"), "we dove into workers' postsecondary degree specialization.
+                                                    p("In the", a(href="https://brookfieldinstitute.ca/report/who-are-canadas-tech-workers", "report,"), "we dove into workers' postsecondary degree specialization.
                                                       Though we do not present this data at the city/town level, tech workers came from a variety of backgrounds,
                                                       with a largest shares coming from traditional STEM programs such as Mathematics, Computer Science and Physics. A sizeable share of the 
                                                       tech workforce also specialized in Business, Commerce and Management related fields."))
@@ -233,7 +235,8 @@ ui <- fluidPage(theme="style.css",
                                     fluidRow(align = "center",
                                              class = "selectize-metro",
                                              selectInput("cma_div","Select a Metropolitan Area:",
-                                                         choices = sort(cma_list[,GEO.NAME]))
+                                                         choices = sort(cma_list[,GEO.NAME]),
+                                                         selected="Toronto")
                                     ), #EndFluidRow
                                     
                                     fluidRow(class="alignedrow",
@@ -299,7 +302,8 @@ ui <- fluidPage(theme="style.css",
                                     
                                     
                                     #VISIBLE MINORITY STARTS HERE
-                                    
+                                    img(class="specialimage2",src="tech_pic_6.png"),
+                                        
                                     fluidRow(class="sectiontitlewrapper",
                                              h3("Visible Minority (VM)")
                                     ), #End FluidRow
@@ -393,10 +397,11 @@ ui <- fluidPage(theme="style.css",
                 fluidRow(class="sectiontitlewrapper",
                          h3("About This Data Visualization")),
                 fluidRow(style="font-size:1.1em",p("This data visualization was created by the Brookfield Institute for Innovation and Entrepreneurship
-                                                   to accompany the", a(href="https://brookfieldinstitute.ca/","State of Canada's Tech Sector 2018: Tech Workers report."), "See the",a(href="https://brookfieldinstitute.ca/", "source code on GitHub.")),
+                                                   to accompany the", a(href="https://brookfieldinstitute.ca/report/who-are-canadas-tech-workers","State of Canada's Tech Sector 2018: Tech Workers report."), "See the",a(href="https://github.com/BrookfieldIIE/sotw-2018-dataviz", "source code on GitHub.")),
                          p("The report was authored by Asher Zafar, Viet Vu, and Creig Lamb. The data visualization was developed by Viet Vu using R, Shiny, and Javascript."),
                          p("This report, as well as the data visualization, would not have been possible without support from the following individuals:
                            Sean Zohar, Jessica Thomson, Nisa Malli, Annalise Huynh, Andrew Do, Sarah Doyle, as well as our reviewers."),
+                         p("We also thank ",a(href="https://www.spencerflock.com/", "Spencer Flock"),", a Toronto based artist, for the illustration used in this data visualization."),
                          p("The main data source for the report and the visualization is the 2016 and 2006 Canadian long form census."),
                          p("Please send any feedback, comments, or questions to", a(href="mailto:brookfield.institute@ryerson.ca", "brookfield.institute@ryerson.ca")),
                          

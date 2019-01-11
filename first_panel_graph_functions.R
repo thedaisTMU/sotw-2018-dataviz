@@ -11,7 +11,7 @@ library(scales)
 plot.cmatot <- function(name_to_use,cma.id){
     #This first bit ensures that during initial loading something is displayed instead of returning an error
     if(is.null(name_to_use)){
-      noc.dem.tech.map[,cma.focus:="0"]
+      noc.dem.tech.map[cma.focus=="1",cma.focus:="0"]
       noc.dem.tech.map[ALT.GEO.CODE %in% cma.id,cma.focus:="1"]
       column.pct <- ggplot(data=noc.dem.tech.map[tech==1],aes(reorder(GEO.NAME,pct),pct,fill=cma.focus)) + 
         geom_col(aes(text=paste(GEO.NAME,
@@ -62,7 +62,7 @@ plot.cmatot <- function(name_to_use,cma.id){
     #Now the actual dynamic bit begins...
     else{
       noc.dem.tech.map.to.use <- noc.dem.tech.map[tech==1]
-      noc.dem.tech.map.to.use[,cma.focus:="0"]
+      noc.dem.tech.map.to.use[cma.focus=="1",cma.focus:="0"]
       noc.dem.tech.map.to.use[ALT.GEO.CODE %in% cma.id,cma.focus:="1"]
       x.focus <- noc.dem.tech.map.to.use[cma.focus=="1" ,rownum]
       y.focus <- noc.dem.tech.map.to.use[cma.focus=="1" ,pct]
@@ -231,7 +231,7 @@ plot.canocc <- function(pct_or_tot){
 
 #Plot the line graph for educational attainment shares for each CMA/CA
 plot.educ <- function(name_to_use,cma.id){
-  cma.ca.educ[,dum:=0]
+  cma.ca.educ[dum==1,dum:=0]
   cma.ca.educ[ALT.GEO.CODE %in% cma.id,dum:=1]
   plot.educ.share <- ggplot(data=cma.ca.educ[dum==0],aes(EDUC15,pct)) +
     BF.Base.Theme +

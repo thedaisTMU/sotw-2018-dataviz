@@ -7,8 +7,7 @@ library(scales)
 
 #Plot scatterplot of pay in tech and pay in non-tech for each CMA
 plot.scatter.income <- function(name_to_use){
-  tech_premium[GEO.NAME=="Canada",color:="0"]
-  tech_premium[GEO.NAME!="Canada",color:="1"]
+  tech_premium[color=="2",color:="1"]
   tech_premium[GEO.NAME==name_to_use,color:="2"]
   
   scatter.tech.plot <- ggplot(data=tech_premium, aes(non.tech.pay,tech.pay,colour=color)) +
@@ -47,8 +46,7 @@ plot.scatter.income <- function(name_to_use){
 
 #Plot gender pay gap for each CMA - column graph
 plot.gender.paygap <- function(name_to_use){
-  tech_gender[GEO.NAME=="Canada",color:="0"]
-  tech_gender[GEO.NAME!="Canada",color:="1"]
+  tech_gender[color=="2",color:="1"]
   tech_gender[GEO.NAME==name_to_use,color:="2"]
   plot.female.pay <- ggplot(data=tech_gender,aes(reorder(GEO.NAME,pay.gap),pay.gap)) +
     geom_col(aes(fill=color,
@@ -172,8 +170,7 @@ draw.comp.vismin.table <- function(name_to_use){
 
 #Plot pay gap for visible minority groups for each CMA - column graph
 plot.vismin.paygap <- function(name_to_use){
-  tech_vismin[GEO.NAME=="Canada",color:="0"]
-  tech_vismin[GEO.NAME!="Canada",color:="1"]
+  tech_vismin[color=="2",color:="1"]
   tech_vismin[GEO.NAME %in% name_to_use,color:="2"]
   plot.vismin.pay <- ggplot(data=tech_vismin[VIS.MIN15.ID==2],aes(reorder(GEO.NAME,pay.gap),pay.gap)) +
     geom_col(aes(fill=color,
