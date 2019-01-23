@@ -15,6 +15,14 @@ source("second_panel_graph_functions.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme="style.css",
+                tags$head(HTML('<script async src="https://www.googletagmanager.com/gtag/js?id=UA-79862704-1"></script>
+<script>
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag("js", new Date());
+
+ gtag("config", "UA-79862704-1");
+</script>')),
                 
                 
                 
@@ -41,9 +49,9 @@ ui <- fluidPage(theme="style.css",
                 
                 div(class="filler"),
                 navbarPage("",
-                           tabPanel("Key Statistics (Cities)",
+                           tabPanel("Canada's Tech Dashboard (Cities)",
                                     
-                                    fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Key Statistics")),
+                                    fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Dashboard (Cities)")),
                                              div(style="padding-top: 30px; padding-bottom: 30px",
                                                  p("Who are the people that make up Canada’s tech industries? How many are there? Where do they work? What cities can you find them in? How educated are they?"),
                                                  p("Journey through our latest insights on how tech talent is shaping up across Canada and find our more about how your city stacks up to different cities and regions across the nation. Or,
@@ -225,8 +233,8 @@ ui <- fluidPage(theme="style.css",
                            
                            
                            #SECOND TAB PANEL
-                           tabPanel("Income and Diversity (Metropolitan Areas)",
-                                    fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Income and Diversity")),
+                           tabPanel("Diversity Compass (Metropolitan Areas)",
+                                    fluidRow(div(class="sectiontitlewrapper",h2("Canada's Tech Workers: Diversity Compass")),
                                              div(style="padding-top: 30px; padding-bottom: 30px",
                                                  p("Diversity is a focal point for many conversations in tech. Let's explore how different identities, like gender and visible minority identities,  
                                                  affect participation and earnings in tech occupations in Canada's metropolitan areas. Or, if you'd like,",a("jump",href="#diversityselection")," to the end to compare different metropolitan areas."))

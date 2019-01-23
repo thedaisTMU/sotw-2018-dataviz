@@ -433,7 +433,7 @@ i{
     z-index:1200;
     display:flex;
     top:37px;
-    right:290px;
+    right:330px;
     margin-left:inherit;
     margin-right:inherit;
   }
@@ -444,7 +444,7 @@ i{
   display:flex;
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
-  right:-260px;
+  right:-300px;
   top:37px;
   margin-left:inherit;
   margin-right:inherit;
