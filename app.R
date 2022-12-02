@@ -414,8 +414,8 @@ ui <- fluidPage(theme="style.css",
                          p("Please send any feedback, comments, or questions to", a(href="mailto:brookfield.institute@ryerson.ca", "brookfield.institute@ryerson.ca")),
                          
                          div(style="margin-top:25px;border-top: 1px solid #e3e3e3",p(style="font-style: italic","For media enquiries, please contact", 
-                                                                                     a(href="https://brookfieldinstitute.ca/team/coralie-dsouza","Coralie D’Souza"), 
-                                                                                     "Director of Communications, Events + Community Relations at the 
+                                                                                     a(href="https://brookfieldinstitute.ca/team/nina-rafeek/","Nina Rafeek Dow"), 
+                                                                                     "Marketing and Communications Specialist at the 
                                                                                      Brookfield Institute for Innovation + Entrepreneurship.")
                          ) #End Div
                          ), #End FluidRow
